@@ -1,0 +1,124 @@
+<!-- Department Modal -->
+<app-draggable-modal
+  [isVisible]="isOpen()"
+  [title]="modalTitle()"
+  [closeOnBackdropClick]="true"
+  (onClose)="onCancel()">
+  
+  <!-- Loading Overlay -->
+  @if (isDataLoading()) {
+    <div class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-10 rounded-xl">
+      <div class="flex flex-col items-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+        <p class="text-gray-600 font-medium">Loading department data...</p>
+      </div>
+    </div>
+  }
+  
+  <form [formGroup]="departmentForm" (ngSubmit)="onSave()" novalidate>
+      
+      <!-- Department Details -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div>
+          <label for="dept-name" class="block text-sm font-medium text-gray-700">Department Name</label>
+          <input 
+            type="text" 
+            id="dept-name" 
+            formControlName="name"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+            placeholder="e.g., Frontend Developers">
+        </div>
+        <div>
+          <label for="dept-code" class="block text-sm font-medium text-gray-700">Department Code</label>
+          <input 
+            type="text" 
+            id="dept-code" 
+            formControlName="code"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100" 
+            placeholder="Auto-generated"
+            readonly>
+        </div>
+      </div>
+
+      <!-- Member Management -->
+      <div>
+        <h4 class="text-lg font-semibold text-gray-800 mb-4">Manage Members</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Available Assignees -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Available Assignees</label>
+            <div class="border rounded-md bg-white">
+              <div class="p-2 border-b">
+                <input 
+                  type="text" 
+                  (input)="onAvailableSearchChange($event)"
+                  class="w-full text-sm border-gray-200 rounded-md" 
+                  placeholder="Search...">
+              </div>
+              <ul class="h-64 overflow-y-auto member-list p-2">
+                @for (assignee of filteredAvailableAssignees(); track assignee.id) {
+                  <li 
+                    class="flex items-center justify-between p-2 rounded-md hover:bg-gray-100 cursor-pointer"
+                    (click)="moveToMembers(assignee)">
+                    <span class="text-sm">{{ assignee.name }}</span>
+                  </li>
+                }
+                @if (filteredAvailableAssignees().length === 0) {
+                  <li class="text-sm text-gray-500 p-2">No available assignees</li>
+                }
+              </ul>
+            </div>
+          </div>
+          <!-- Department Members -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Department Members</label>
+            <div class="border rounded-md bg-white">
+              <div class="p-2 border-b">
+                <input 
+                  type="text" 
+                  (input)="onMembersSearchChange($event)"
+                  class="w-full text-sm border-gray-200 rounded-md" 
+                  placeholder="Search...">
+              </div>
+              <ul class="h-64 overflow-y-auto member-list p-2">
+                @for (assignee of filteredDepartmentMembers(); track assignee.id) {
+                  <li 
+                    class="flex items-center justify-between p-2 rounded-md hover:bg-gray-100 cursor-pointer"
+                    (click)="moveToAvailable(assignee)">
+                    <span class="text-sm">{{ assignee.name }}</span>
+                    <i 
+                      class="fa-star {{ isPriorityMember(assignee) ? 'fa-solid text-yellow-500' : 'fa-regular text-gray-400' }} hover:text-yellow-500"
+                      (click)="togglePriority(assignee); $event.stopPropagation()"
+                      title="Set as priority department"
+                      class="cursor-pointer"></i>
+                  </li>
+                }
+                @if (filteredDepartmentMembers().length === 0) {
+                  <li class="text-sm text-gray-500 p-2">No members assigned</li>
+                }
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Actions -->
+      <div class="items-center pt-6 flex gap-4 justify-end">
+        <button 
+          type="button" 
+          (click)="onCancel()"
+          class="w-auto justify-center rounded-md border border-gray-300 px-4 py-2 bg-white text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 cursor-pointer">
+          Cancel
+        </button>
+        <button 
+          type="submit" 
+          [disabled]="departmentForm.invalid || isLoading()"
+          class="w-auto justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed">
+          @if (isLoading()) {
+            <i class="fa-solid fa-spinner fa-spin mr-2"></i>
+          }
+          Save Department
+        </button>
+      </div>
+    </form>
+</app-draggable-modal>

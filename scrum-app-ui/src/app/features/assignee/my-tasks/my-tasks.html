@@ -1,0 +1,38 @@
+<!-- Loading State -->
+@if (isLoading()) {
+  <div class="flex items-center justify-center min-h-64">
+    <div class="text-center">
+      <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-3"></div>
+      <p class="text-gray-600">Loading tasks...</p>
+    </div>
+  </div>
+}
+
+<!-- Tasks Grid -->
+@if (!isLoading()) {
+  <div id="tasks-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    @for (task of visibleTasks(); track task.taskId) {
+      <app-assignee-task-card
+        [task]="task"
+        (statusChange)="onCardStatusChange($event)"></app-assignee-task-card>
+    }
+  </div>
+
+  <!-- Empty State -->
+  @if (!visibleTasks().length) {
+    <div class="text-center py-12">
+      <div class="max-w-md mx-auto">
+        <i class="fa-solid fa-tasks text-6xl text-gray-300 mb-4"></i>
+        <h3 class="text-xl font-semibold text-gray-800 mb-2">No Tasks Assigned</h3>
+        <p class="text-gray-600">You don't have any tasks assigned to you in this sprint yet.</p>
+      </div>
+    </div>
+  }
+
+  <!-- Infinite Scroll Sentinel -->
+  <div id="scroll-sentinel" class="h-12 flex items-center justify-center">
+    @if (isLoadingMore()) {
+      <div class="text-xs text-gray-500">Loading more...</div>
+    }
+  </div>
+}

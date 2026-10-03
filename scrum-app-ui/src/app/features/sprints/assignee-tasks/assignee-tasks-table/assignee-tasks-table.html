@@ -1,0 +1,70 @@
+<div class="bg-white rounded-xl shadow-sm overflow-hidden">
+  <table class="min-w-full text-sm border-collapse">
+    <thead class="bg-gray-100">
+      <tr class="border-b border-gray-300">
+        <th class="p-3 text-center font-semibold">Order</th>
+        <th class="p-3 text-left font-semibold">Task Code</th>
+        <th class="p-3 text-left font-semibold">Task Dependency</th>
+        <th class="p-3 text-left font-semibold">Task Description</th>
+        <th class="p-3 text-center font-semibold">Priority</th>
+        <th class="p-3 text-center font-semibold">Status</th>
+        <th class="p-3 text-center font-semibold">Story Point</th>
+        <th class="p-3 text-center font-semibold">Days Spent</th>
+      </tr>
+    </thead>
+    <tbody 
+      cdkDropList 
+      (cdkDropListDropped)="onTaskDrop($event)"
+      class="cdk-drop-list"
+    >
+      @for (task of assigneeData().tasks; track task.taskId; let i = $index) {
+        <tr 
+          class="border-b border-gray-300 draggable-row"
+          [class.saving-row]="isSaving()"
+          cdkDrag
+          [cdkDragDisabled]="isSaving()"
+        >
+          <!-- Order Column with Drag Handle -->
+          <td class="p-3 text-center">
+            <div class="flex items-center justify-center">
+              <i class="fa-solid fa-grip-vertical drag-handle mr-2 cdk-drag-handle"></i>
+              <span class="font-medium text-gray-700">{{ task.order }}</span>
+              @if (isSaving()) {
+                <i class="fa-solid fa-spinner fa-spin text-blue-600 ml-2"></i>
+              }
+            </div>
+          </td>
+          
+          <!-- Task Code -->
+          <td class="p-3">{{ task.taskCode }}</td>
+          
+          <!-- Task Dependency -->
+          <td class="p-3">{{ getDependencyDisplay(task.taskDependency) }}</td>
+          
+          <!-- Task Description -->
+          <td class="p-3">{{ task.taskDescription }}</td>
+          
+          <!-- Priority Badge -->
+          <td class="p-3 text-center">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ getPriorityBadgeClass(task.priority) }}" style="font-size: 8pt;">
+              {{ getPriorityDisplayName(task.priority) }}
+            </span>
+          </td>
+          
+          <!-- Status Badge -->
+          <td class="p-3 text-center">
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ getStatusBadgeClass(task.status) }}" style="font-size: 8pt;">
+              {{ getStatusDisplayName(task.status) }}
+            </span>
+          </td>
+          
+          <!-- Story Points -->
+          <td class="p-3 text-center">{{ task.storyPoints }}</td>
+          
+          <!-- Days Spent -->
+          <td class="p-3 text-center">{{ task.daysSpent }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

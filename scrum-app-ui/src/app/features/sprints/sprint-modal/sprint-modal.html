@@ -1,0 +1,76 @@
+<app-draggable-modal 
+  [isVisible]="isVisible()"
+  [title]="modalTitle()"
+  (onClose)="onCancel()">
+  
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="flex items-center justify-center py-12">
+      <div class="text-center">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p class="text-gray-600">Loading sprint data...</p>
+      </div>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Left Column: Form Fields -->
+      <div class="space-y-6">
+        <app-sprint-form 
+          [formData]="sprintFormData()"
+          [totalWorkDays]="totalWorkDays()"
+          (formValueChanged)="onFormValueChanged($event)">
+        </app-sprint-form>
+      </div>
+
+        <!-- Right Column: Holiday Selector -->
+        <app-holiday-selector
+          [dateRange]="sprintDateRange()"
+          [selectedHolidays]="selectedHolidays()"
+          [currentDate]="currentDate()"
+          (holidayToggled)="onHolidayToggled($event)"
+          (recurringHolidayToggled)="onRecurringHolidayToggle($event.dayOfWeek, $event.selected)"
+          (monthChanged)="onMonthChanged($event)">
+          
+          <!-- Calendar days projected into holiday selector -->
+          @for (day of calendarDays(); track day.getTime()) {
+            <app-calendar-day
+              [date]="day"
+              [isHoliday]="isHoliday(day)"
+              [isDisabled]="!isWithinSprintRange(day)"
+              [isToday]="isToday(day)"
+              (dayClicked)="toggleHoliday($event)">
+            </app-calendar-day>
+          }
+          
+        </app-holiday-selector>
+      </div>
+    }
+
+    <!-- Modal Actions -->
+    <div class="items-center pt-6 flex gap-4 justify-end border-t mt-6">
+      <button 
+        type="button" 
+        (click)="onCancel()"
+        class="w-auto justify-center rounded-md border border-gray-300 px-4 py-2 bg-white text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 cursor-pointer">
+        Cancel
+      </button>
+           <button 
+             type="button" 
+             (click)="onSubmit()"
+             [disabled]="!isFormValid() || isLoading() || isSaving()"
+             class="w-auto justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed">
+             @if (isSaving()) {
+               <span class="flex items-center">
+                 <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                 </svg>
+                 Saving...
+               </span>
+             } @else {
+               {{ submitButtonText() }}
+             }
+           </button>
+    </div>
+      
+</app-draggable-modal>

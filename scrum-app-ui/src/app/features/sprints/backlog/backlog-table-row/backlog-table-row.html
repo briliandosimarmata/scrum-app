@@ -1,0 +1,164 @@
+
+<td class="px-3 py-1.5 text-xs whitespace-nowrap font-medium">
+    @if (isLoading()) {
+        <div class="bg-white/30 backdrop-blur-xs text-sm text-gray-900 absolute top-0 left-0 bottom-0 right-0 flex items-center justify-center">
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            <span>&nbsp; Loading...</span>
+        </div>
+    }
+    {{ task().code }}
+</td>
+  <td class="px-3 py-1.5 text-xs">
+    <app-dropdown
+      [options]="dependencyOptions()"
+      [selectedValue]="task().dependencyTaskId || null"
+      [config]="getDependencyConfig()"
+      [isDisabled]="isClosed()"
+      (valueSelected)="onDependencySelected($event)">
+      <span [class]="task().dependencyTaskId ? 'text-gray-900' : 'text-gray-400'">
+        {{ getDependencyDisplayName(task().dependencyTaskId) }}
+      </span>
+    </app-dropdown>
+  </td>
+  <td class="px-3 py-1.5 text-xs">
+    @if (editingField() === 'description') {
+      <div class="flex items-center justify-between">
+        <input 
+          type="text" 
+          [value]="editValues().description"
+          (input)="onInputChange('description', $event.target.value)"
+          (keyup.enter)="saveEdit()"
+          (keyup.escape)="cancelEdit()"
+          class="border-gray-300 rounded-md shadow-sm w-full py-1 px-2">
+        <button 
+          type="button"
+          class="ml-2 text-green-600 hover:text-green-800 cursor-pointer"
+          (click)="saveEdit()">
+          <i class="fa-solid fa-check"></i>
+        </button>
+        <button 
+          type="button"
+          class="ml-1 text-gray-600 hover:text-gray-800 cursor-pointer"
+          (click)="cancelEdit()">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+    } @else {
+      <div class="flex items-center justify-between group" (click)="startEditing('description')">
+        <span class="truncate w-60" [title]="task().description">{{ task().description }}</span>
+        <button 
+          type="button"
+          class="ml-2 text-gray-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 edit-btn cursor-pointer"
+          [class.pointer-events-none]="isClosed()"
+          [class.opacity-50]="isClosed()"
+          (click)="startEditing('description')"
+          title="Edit Description">
+          <i class="fa-solid fa-pencil text-xs"></i>
+        </button>
+      </div>
+    }
+  </td>
+  <td class="px-3 py-1.5 text-xs">
+    <app-dropdown
+      [options]="priorityOptions()"
+      [selectedValue]="task().priority"
+      [config]="getPriorityConfig()"
+      [isDisabled]="isClosed()"
+      (valueSelected)="onPrioritySelected($event)">
+      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" [class]="getPriorityBadgeClass(task().priority)">
+        {{ getPriorityDisplayName(task().priority) }}
+      </span>
+    </app-dropdown>
+  </td>
+  <td class="px-3 py-1.5 text-xs">
+    @if (editingField() === 'storyPoints') {
+      <div class="flex items-center justify-between">
+        <input 
+          type="number" 
+          [value]="editValues().storyPoints"
+          (input)="onInputChange('storyPoints', +$event.target.value)"
+          (keyup.enter)="saveEdit()"
+          (keyup.escape)="cancelEdit()"
+          class="border-gray-300 rounded-md shadow-sm w-20 py-1 px-2">
+        <button 
+          type="button"
+          class="ml-2 text-green-600 hover:text-green-800 cursor-pointer"
+          (click)="saveEdit()">
+          <i class="fa-solid fa-check"></i>
+        </button>
+        <button 
+          type="button"
+          class="ml-1 text-gray-600 hover:text-gray-800 cursor-pointer"
+          (click)="cancelEdit()">
+          <i class="fa-solid fa-times"></i>
+        </button>
+      </div>
+    } @else {
+      <div class="flex items-center justify-between group" (click)="startEditing('storyPoints')">
+        <span>{{ task().storyPoints }}</span>
+        <button 
+          type="button"
+          class="ml-2 text-gray-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 edit-btn cursor-pointer"
+          [class.pointer-events-none]="isClosed()"
+          [class.opacity-50]="isClosed()"
+          (click)="startEditing('storyPoints')"
+          title="Edit Story Points">
+          <i class="fa-solid fa-pencil text-xs"></i>
+        </button>
+      </div>
+    }
+  </td>
+  <td class="px-3 py-1.5 text-xs">
+    <app-dropdown
+      [options]="statusOptions()"
+      [selectedValue]="task().status"
+      [config]="getStatusConfig()"
+      [isDisabled]="isClosed()"
+      (valueSelected)="onStatusSelected($event)">
+      <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" [class]="getStatusBadgeClass(task().status)">
+        {{ getStatusDisplayName(task().status) }}
+      </span>
+    </app-dropdown>
+  </td>
+  <td class="px-3 py-1.5 text-xs">
+    <app-dropdown
+      [options]="departmentOptions()"
+      [selectedValue]="task().departmentId || null"
+      [config]="getDepartmentConfig()"
+      [isDisabled]="isClosed()"
+      (valueSelected)="onDepartmentSelected($event)">
+      <span [class]="task().departmentId ? 'text-gray-900' : 'text-gray-400'">
+        {{ getDepartmentDisplayName(task().departmentId) }}
+      </span>
+    </app-dropdown>
+  </td>
+  <td class="px-3 py-1.5 text-xs">
+    <app-dropdown
+      [options]="assigneeOptions()"
+      [selectedValue]="task().assigneeId || null"
+      [config]="getAssigneeConfig()"
+      [isDisabled]="isClosed()"
+      (valueSelected)="onAssigneeSelected($event)">
+      <span [class]="task().assigneeId ? 'text-gray-900' : 'text-gray-400'">
+        {{ getAssigneeDisplayName(task().assigneeId) }}
+      </span>
+    </app-dropdown>
+  </td>
+  <td class="px-3 py-1.5 text-xs whitespace-nowrap text-right font-medium space-x-4">
+    @if (!isClosed()) {
+      <button 
+        type="button"
+        (click)="onCloseTask()"
+        class="text-gray-600 hover:text-gray-900 cursor-pointer"
+        title="Close Task">
+        <i class="fa-solid fa-times-circle text-sm"></i>
+      </button>
+    }
+    <button 
+      type="button"
+      (click)="onDeleteTask()"
+      class="text-red-600 hover:text-red-900 cursor-pointer"
+      title="Delete">
+      <i class="fa-solid fa-trash text-sm"></i>
+    </button>
+  </td>

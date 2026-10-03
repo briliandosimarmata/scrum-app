@@ -1,0 +1,74 @@
+<div class="space-y-8">
+  <!-- Project Description -->
+  <div class="bg-white p-6 rounded-xl shadow-sm">
+    <h3 class="text-lg font-bold text-gray-800 mb-2">Project Description</h3>
+    <p class="text-gray-600 text-sm">
+      {{ currentProject()?.description || 'No project description available.' }}
+    </p>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    
+    <!-- Total Tasks Card -->
+    <div class="bg-white p-6 rounded-xl shadow-sm flex items-center space-x-4">
+      <div class="bg-blue-100 p-3 rounded-full">
+        <i class="fa-solid fa-list-check text-xl text-blue-600"></i>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500">Total Tasks</p>
+        @if (isSummaryLoading()) {
+          <div class="animate-pulse bg-gray-200 h-8 w-16 rounded"></div>
+        } @else {
+          <p class="text-2xl font-bold text-gray-800">{{ totalTasks() }}</p>
+        }
+      </div>
+    </div>
+
+    <!-- Total Sprints Card -->
+    <div class="bg-white p-6 rounded-xl shadow-sm flex items-center space-x-4">
+      <div class="bg-green-100 p-3 rounded-full">
+        <i class="fa-solid fa-person-running text-xl text-green-600"></i>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500">Total Sprints</p>
+        @if (isSummaryLoading()) {
+          <div class="animate-pulse bg-gray-200 h-8 w-16 rounded"></div>
+        } @else {
+          <p class="text-2xl font-bold text-gray-800">{{ totalSprints() }}</p>
+        }
+      </div>
+    </div>
+
+    <!-- Total Departments Card -->
+    <div class="bg-white p-6 rounded-xl shadow-sm flex items-center space-x-4">
+      <div class="bg-yellow-100 p-3 rounded-full">
+        <i class="fa-solid fa-building-user text-xl text-yellow-600"></i>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500">Total Departments</p>
+        @if (isSummaryLoading()) {
+          <div class="animate-pulse bg-gray-200 h-8 w-16 rounded"></div>
+        } @else {
+          <p class="text-2xl font-bold text-gray-800">{{ totalDepartments() }}</p>
+        }
+      </div>
+    </div>
+
+    <!-- Total Assignees Card -->
+    <div class="bg-white p-6 rounded-xl shadow-sm flex items-center space-x-4">
+      <div class="bg-purple-100 p-3 rounded-full">
+        <i class="fa-solid fa-users text-xl text-purple-600"></i>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500">Total Assignees</p>
+        @if (isSummaryLoading()) {
+          <div class="animate-pulse bg-gray-200 h-8 w-16 rounded"></div>
+        } @else {
+          <p class="text-2xl font-bold text-gray-800">{{ totalAssignees() }}</p>
+        }
+      </div>
+    </div>
+
+  </div>
+</div>

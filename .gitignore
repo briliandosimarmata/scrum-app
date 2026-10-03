@@ -1,0 +1,65 @@
+# Local credentials and machine-specific configuration
+.env
+.env.*
+!.env.example
+*.local.yml
+*.local.yaml
+application-local.yml
+application-local.yaml
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local copies of pre-monorepo Git metadata and configuration
+/.local-backups/
+
+# Frontend dependencies, generated output, and caches
+node_modules/
+.angular/
+dist/
+out-tsc/
+coverage/
+.sass-cache/
+.cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+testem.log
+
+# Backend dependencies and generated output (keep the Gradle wrapper)
+.gradle/
+build/
+bin/
+out/
+*.class
+*.hprof
+!gradle/wrapper/gradle-wrapper.jar
+
+# Runtime files and database exports
+logs/
+*.log
+*.pid
+*.dump
+*.sql.gz
+/tmp/
+
+# Editor state; portable frontend tasks, launchers, and recommendations may be shared
+.idea/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+.history/
+**/.vscode/*
+!**/.vscode/tasks.json
+!**/.vscode/launch.json
+!**/.vscode/extensions.json
+
+# OS metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
+*~

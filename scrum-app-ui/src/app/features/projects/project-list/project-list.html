@@ -1,0 +1,81 @@
+<div class="min-h-screen bg-blue-50">
+  <!-- Header -->
+  <header class="bg-white shadow-sm">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center py-4">
+        <div class="flex items-center">
+          <h1 class="text-xl font-bold text-gray-800">Scrum Board</h1>
+        </div>
+        <div class="flex items-center space-x-4">
+          <app-user-menu-widget></app-user-menu-widget>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+
+  <!-- Main Content -->
+  <main class="container mx-auto p-4 sm:p-6 lg:p-8">
+      <!-- Page Header -->
+      <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-8">
+        <h2 class="text-3xl font-bold text-gray-800 mb-4 sm:mb-0">Your Projects</h2>
+        <button
+          (click)="onCreateProject()"
+          class="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+          </svg>
+          Create New Project
+        </button>
+      </div>
+
+
+      <!-- Loading State -->
+      @if (isLoading()) {
+        <div class="flex justify-center items-center py-12">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <span class="ml-3 text-gray-600">Loading projects...</span>
+        </div>
+      }
+
+      <!-- Projects Grid -->
+      @if (!isLoading() && hasProjects()) {
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          @for (project of projects(); track trackByProjectId($index, project)) {
+            <app-project-card
+              [project]="project"
+              (editProject)="onEditProject($event)"
+              (deleteProject)="onDeleteProject($event)"
+            ></app-project-card>
+          }
+        </div>
+      }
+
+      <!-- Empty State (commented out in mockup) -->
+      @if (!isLoading() && !hasProjects()) {
+        <!-- 
+            Empty State:
+            When there are no projects, you can hide the grid above and show this message instead.
+            The "Create New Project" button would be the primary call to action.
+        -->
+        
+        <div class="col-span-full text-center py-12 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+            <i class="fa-regular fa-folder-open text-6xl text-gray-400"></i>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No projects</h3>
+            <p class="mt-1 text-sm text-gray-500">Get started by creating a new project.</p>
+        </div>
+       
+      }
+  </main>
+
+  <!-- Project Modal -->
+  <app-project-modal
+    [isVisible]="isModalVisible()"
+    [project]="editingProject()"
+    (saveProject)="onSaveProject($event)"
+    (cancelModal)="onCancelModal()"
+    (generateProjectKey)="onGenerateProjectKey($event)"
+  ></app-project-modal>
+</div>

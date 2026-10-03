@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline - Scrum Board</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10pt; }
+        .submenu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        
+        #timeline-grid {
+            display: grid;
+            grid-auto-rows: 40px; /* Fixed row height for alignment */
+        }
+        .timeline-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .custom-dropdown-panel {
+            display: none;
+            position: absolute;
+            z-index: 50;
+            min-width: 100%;
+            max-height: 250px;
+            overflow-y: auto;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .custom-dropdown-panel.show { display: block; }
+        .custom-dropdown-option { padding: 8px 12px; cursor: pointer; font-size: 0.875rem; }
+        .custom-dropdown-option:hover { background-color: #f3f4f6; }
+    </style>
+</head>
+<body class="bg-blue-50">
+
+    <div class="flex h-screen bg-gray-100">
+        <!-- Sidebar -->
+        <aside class="w-64 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col h-screen">
+            <div class="h-16 flex items-center justify-center border-b border-gray-200 flex-shrink-0">
+                <h1 class="text-xl font-bold text-gray-800">E-commerce Platform</h1>
+            </div>
+            <!-- Scrollable Navigation Area -->
+            <div class="flex-1 overflow-y-auto">
+                <nav id="sidebar-nav" class="px-4 py-6 space-y-2">
+                 <a href="dashboard.html" class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg">
+                    <i class="fa-solid fa-table-columns w-6 text-center"></i>
+                    <span>Dashboard</span>
+                </a>
+                <div>
+                    <button onclick="toggleSubmenu('masters-submenu')" class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-database w-6 text-center"></i>
+                            <span>Masters</span>
+                        </div>
+                        <i id="masters-submenu-arrow" class="fa-solid fa-chevron-down text-xs transition-transform"></i>
+                    </button>
+                    <div id="masters-submenu" class="submenu ml-4 mt-1 space-y-1">
+                        <a href="assignee.html" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Assignee</a>
+                        <a href="department.html" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Department</a>
+                    </div>
+                </div>
+                <div class="pt-4">
+                    <button id="add-sprint-btn" class="w-full flex items-center justify-center px-4 py-2.5 border border-dashed border-blue-400 rounded-lg text-sm font-semibold text-blue-600 hover:bg-blue-100">
+                        <i class="fa-solid fa-plus mr-2"></i>
+                        <span>Add New Sprint</span>
+                    </button>
+                </div>
+                <!-- Sprint Menu Section -->
+                <div class="pt-4 space-y-2 border-t border-gray-200 mt-4">
+                    <div class="px-4 relative">
+                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Active Sprint</label>
+                        <button type="button" class="w-full flex items-center justify-between px-3 py-2 text-left bg-white border border-gray-300 rounded-md shadow-sm">
+                            <span class="text-sm text-gray-700 truncate">Sprint 1 - UI Redesign</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                        </button>
+                    </div>
+                    <div>
+                        <button onclick="toggleSubmenu('sprint-submenu')" class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fa-solid fa-person-running w-6 text-center"></i>
+                                <span>Sprint Menu</span>
+                            </div>
+                            <i id="sprint-submenu-arrow" class="fa-solid fa-chevron-down text-xs transition-transform rotate-180"></i>
+                        </button>
+                        <div id="sprint-submenu" class="submenu ml-4 mt-1 space-y-1" style="max-height: 500px;">
+                            <a href="backlog.html" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Backlog</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Department Tasks</a>
+                            <a href="assignee-tasks.html" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Assignee Tasks</a>
+                            <a href="timeline.html" class="block px-4 py-2 text-sm font-semibold text-blue-700 bg-blue-100 rounded-lg">Timeline</a>
+                            <div class="border-t my-1"></div>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Sprint Setting</a>
+                        </div>
+                    </div>
+                </div>
+                </nav>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex-shrink-0">
+                <a href="project-list.html" class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg">
+                    <i class="fa-solid fa-arrow-left w-6 text-center"></i>
+                    <span>Back to Projects</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <header class="bg-white shadow-sm">
+                <div class="flex justify-between items-center p-4 sm:p-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Timeline</h2>
+                    <div class="flex items-center">
+                        <span class="text-sm text-gray-600 mr-4">John Doe</span>
+                        <a href="login.html" class="text-sm font-medium text-blue-600 hover:text-blue-500">Logout</a>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-4 sm:p-6 lg:p-8">
+                <div class="mb-4">
+                    <div id="timeline-filter-container" class="flex items-center gap-4"></div>
+                </div>
+                <div id="timeline-wrapper" class="bg-white rounded-xl shadow-sm flex">
+                    <div id="frozen-pane" class="flex-shrink-0 bg-white"></div>
+                    <div id="scrollable-pane" class="flex-grow overflow-x-auto">
+                        <div id="timeline-grid" class="relative"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+<script>
+// --- Sidebar ---
+function toggleSubmenu(submenuId) {
+    const submenu = document.getElementById(submenuId);
+    const arrow = document.getElementById(submenuId + '-arrow');
+    if (submenu.style.maxHeight && submenu.style.maxHeight !== '0px') {
+        submenu.style.maxHeight = '0px';
+        arrow.classList.remove('rotate-180');
+    } else {
+        submenu.style.maxHeight = submenu.scrollHeight + 'px';
+        arrow.classList.add('rotate-180');
+    }
+}
+
+// --- Mock Data ---
+const mockData = {
+    sprintInfo: { startDate: '2025-10-01', endDate: '2025-11-07' },
+    holidays: [ '2025-10-27' ],
+    departments: [
+        { id: 1, name: 'Frontend' }, { id: 2, name: 'Backend' }, { id: 3, name: 'QA' },
+    ],
+    assignees: [
+        { id: 1, name: 'Alice', departmentIds: [1] }, { id: 2, name: 'Bob', departmentIds: [2] }, 
+        { id: 3, name: 'Charlie', departmentIds: [1, 2] }, { id: 4, name: 'David', departmentIds: [3] }, 
+        { id: 5, name: 'Eve', departmentIds: [1, 3] },
+    ],
+    tasks: [
+        { id: 1, code: 'T-01', description: 'Setup project structure', assigneeId: 1, departmentId: 1, startDate: '2025-10-01', endDate: '2025-10-03', status: 'done' },
+        { id: 2, code: 'T-02', description: 'Develop dashboard component', assigneeId: 3, departmentId: 1, startDate: '2025-10-02', endDate: '2025-10-08', status: 'in_progress' },
+        { id: 3, code: 'T-03', description: 'Design auth API', assigneeId: 2, departmentId: 2, startDate: '2025-10-06', endDate: '2025-10-11', status: 'in_progress' },
+        { id: 4, code: 'T-04', description: 'Integration tests for auth', assigneeId: 4, departmentId: 3, startDate: '2025-10-12', endDate: '2025-10-17', status: 'todo' },
+        { id: 5, code: 'T-05', description: 'Long description task to test overflow', assigneeId: 5, departmentId: 1, startDate: '2025-10-15', endDate: '2025-10-25', status: 'todo' },
+        { id: 6, code: 'T-06', description: 'Deploy to staging', assigneeId: 1, departmentId: 1, startDate: '2025-10-28', endDate: '2025-11-05', status: 'closed' },
+    ],
+    statuses: [
+        { id: 'todo', name: 'To Do' }, { id: 'in_progress', name: 'In Progress' }, { id: 'done', name: 'Done' }, { id: 'closed', name: 'Closed' },
+    ]
+};
+
+let timelineFilters = { departmentId: null };
+
+const statusColors = { todo: 'gray', in_progress: 'blue', done: 'green', closed: 'red' };
+const barColorClasses = { green: 'bg-green-500', blue: 'bg-blue-500', gray: 'bg-gray-500', red: 'bg-red-400' };
+
+// --- Helpers ---
+function getInitials(name) {
+    if (!name) return '?';
+    const parts = name.split(' ').filter(p => p);
+    if (parts.length > 1) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    if (parts.length === 1 && parts[0].length > 1) return (parts[0][0] + parts[0][1]).toUpperCase();
+    if (parts.length === 1) return parts[0][0].toUpperCase();
+    return '?';
+}
+
+function getAvatarColor(name) {
+    const colors = ['bg-red-500', 'bg-green-500', 'bg-purple-500', 'bg-indigo-500', 'bg-pink-500', 'bg-yellow-500', 'bg-teal-500'];
+    if (!name) return 'bg-gray-400';
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return colors[Math.abs(hash % colors.length)];
+}
+
+// --- Date Helpers ---
+function getDates(startDate, endDate) {
+    const dates = [];
+    let currentDate = new Date(startDate + 'T00:00:00');
+    const lastDate = new Date(endDate + 'T00:00:00');
+    while (currentDate <= lastDate) {
+        dates.push(new Date(currentDate));
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return dates;
+}
+
+function isHoliday(date, holidays) {
+    const day = date.getDay();
+    const isWeekend = day === 6 || day === 0;
+    const dateString = date.toISOString().split('T')[0];
+    return isWeekend || holidays.includes(dateString);
+}
+
+// --- Filter Dropdown Logic ---
+function filterTimelineDropdownOptions(event) {
+    const input = event.target;
+    const filter = input.value.toUpperCase();
+    const panel = input.closest('.custom-dropdown-panel');
+    const ul = panel.querySelector('ul');
+    const items = ul.getElementsByTagName('li');
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const onclickAttr = item.getAttribute('onclick');
+        if (onclickAttr && onclickAttr.includes("'null'")) {
+            item.style.display = '';
+            continue;
+        }
+        const txtValue = item.textContent || item.innerText;
+        item.style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? '' : 'none';
+    }
+}
+
+function buildTimelineFilterDropdown(key, placeholder, items, isSearchable = false) {
+    const selectedItem = items.find(i => i.id == timelineFilters[key]);
+    const triggerText = selectedItem ? selectedItem.name : placeholder;
+    const searchInputHTML = isSearchable ? `<div class="p-2 border-b border-gray-200"><input type="text" class="w-full px-2 py-1 border border-gray-300 rounded-md text-sm" placeholder="Search..." onkeyup="filterTimelineDropdownOptions(event)"></div>` : '';
+    const options = items.map(item => `<li class="custom-dropdown-option" onclick="handleTimelineFilterSelect('${key}', '${item.id}')">${item.name}</li>`).join('');
+    return (
+        `<div class="relative" id="filter-dropdown-${key}">
+            <div class="dropdown-trigger flex items-center justify-between w-48 bg-white border border-gray-300 rounded-md shadow-sm px-3 py-1.5 text-sm cursor-pointer" onclick="toggleFilterDropdown(event, this)">
+                <span class="truncate">${triggerText}</span>
+                <i class="fa-solid fa-chevron-down text-xs text-gray-400 ml-2"></i>
+            </div>
+            <div class="custom-dropdown-panel">
+                ${searchInputHTML}
+                <ul>
+                    <li class="custom-dropdown-option" onclick="handleTimelineFilterSelect('${key}', 'null')"><span class="text-gray-500">${placeholder}</span></li>
+                    ${options}
+                </ul>
+            </div>
+        </div>`
+    );
+}
+
+function handleTimelineFilterSelect(key, value) {
+    const realValue = value === 'null' ? null : value;
+    timelineFilters[key] = isNaN(parseInt(realValue)) ? realValue : parseInt(realValue);
+    document.querySelector('#filter-dropdown-departmentId .truncate').textContent = (mockData.departments.find(d => d.id == timelineFilters.departmentId) || {name: 'All Departments'}).name;
+    closeAllFilterDropdowns();
+    renderTimeline();
+}
+
+function toggleFilterDropdown(event, trigger) {
+    event.stopPropagation();
+    const panel = trigger.nextElementSibling;
+    const isShowing = panel.classList.contains('show');
+    closeAllFilterDropdowns();
+    if (!isShowing) {
+        panel.classList.add('show');
+        const searchInput = panel.querySelector('input[type="text"]');
+        if (searchInput) {
+            searchInput.value = '';
+            searchInput.dispatchEvent(new KeyboardEvent('keyup', { 'key': '' }));
+            searchInput.focus();
+        }
+    }
+}
+
+function closeAllFilterDropdowns() {
+    document.querySelectorAll('#timeline-filter-container .custom-dropdown-panel.show').forEach(panel => panel.classList.remove('show'));
+}
+
+function initializeTimelineFilters() {
+    const container = document.getElementById('timeline-filter-container');
+    if (!container) return;
+    const deptDropdown = buildTimelineFilterDropdown('departmentId', 'All Departments', mockData.departments, true);
+    container.innerHTML = deptDropdown;
+}
+
+// --- Timeline Rendering ---
+function renderTimeline() {
+    const frozenPane = document.getElementById('frozen-pane');
+    const timelineGrid = document.getElementById('timeline-grid');
+    if (!frozenPane || !timelineGrid) return;
+
+    frozenPane.innerHTML = '';
+    timelineGrid.innerHTML = '';
+
+    const dates = getDates(mockData.sprintInfo.startDate, mockData.sprintInfo.endDate);
+    const assignees = mockData.assignees;
+    const tasks = timelineFilters.departmentId ? mockData.tasks.filter(t => t.departmentId == timelineFilters.departmentId) : mockData.tasks;
+
+    // --- 1. Populate Frozen Pane ---
+    frozenPane.style.width = '200px';
+    
+    const frozenMonthHeader = document.createElement('div');
+    frozenMonthHeader.className = 'h-10 p-2 bg-gray-100 border-b border-r';
+    frozenPane.appendChild(frozenMonthHeader);
+
+    const frozenDateHeader = document.createElement('div');
+    frozenDateHeader.className = 'h-10 text-sm font-semibold p-2 bg-gray-50 border-b border-r flex items-center';
+    frozenDateHeader.textContent = 'Tasks';
+    frozenPane.appendChild(frozenDateHeader);
+
+    tasks.forEach(task => {
+        const taskNameCell = document.createElement('div');
+        taskNameCell.className = 'h-10 text-xs font-medium p-2 bg-white border-b border-r truncate';
+        taskNameCell.textContent = task.code + ' - ' + task.description;
+        taskNameCell.title = task.description;
+        frozenPane.appendChild(taskNameCell);
+    });
+
+    // --- 2. Populate Scrollable Pane ---
+    timelineGrid.style.gridTemplateColumns = `repeat(${dates.length}, minmax(60px, 1fr))`;
+
+    const months = {};
+    dates.forEach((date, index) => {
+        const month = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+        if (!months[month]) months[month] = { start: index + 1, count: 0 };
+        months[month].count++;
+    });
+
+    Object.keys(months).forEach(month => {
+        const monthCell = document.createElement('div');
+        monthCell.className = 'timeline-header h-10 text-center font-semibold p-2 border-b border-r bg-gray-100';
+        monthCell.style.gridColumn = `${months[month].start} / span ${months[month].count}`;
+        monthCell.style.gridRow = '1';
+        monthCell.textContent = month;
+        timelineGrid.appendChild(monthCell);
+    });
+
+    dates.forEach((date, index) => {
+        const dateCell = document.createElement('div');
+        const day = date.toLocaleDateString('en-US', { weekday: 'short' });
+        const isHolidayCol = isHoliday(date, mockData.holidays);
+        dateCell.className = `timeline-header h-10 text-center text-xs p-1 border-b border-r flex flex-col justify-center ${isHolidayCol ? 'bg-red-100' : 'bg-gray-50'}`;
+        dateCell.style.gridColumn = `${index + 1}`;
+        dateCell.style.gridRow = '2';
+        dateCell.innerHTML = `<div>${date.getDate()}</div><div>${day}</div>`;
+        timelineGrid.appendChild(dateCell);
+    });
+
+    tasks.forEach((task, taskIndex) => {
+        const rowIndex = taskIndex + 3;
+
+        dates.forEach((date, dateIndex) => {
+            const bgCell = document.createElement('div');
+            const isHolidayCol = isHoliday(date, mockData.holidays);
+            bgCell.className = `h-10 border-b border-r ${isHolidayCol ? 'bg-red-50' : ''}`;
+            bgCell.style.gridRow = `${rowIndex}`;
+            bgCell.style.gridColumn = `${dateIndex + 1}`;
+            timelineGrid.appendChild(bgCell);
+        });
+
+        const taskStartDate = new Date(task.startDate + 'T00:00:00');
+        const taskEndDate = new Date(task.endDate + 'T00:00:00');
+        const startIndex = dates.findIndex(d => d.getTime() === taskStartDate.getTime());
+        const endIndex = dates.findIndex(d => d.getTime() === taskEndDate.getTime());
+
+        if (startIndex !== -1 && endIndex !== -1) {
+            const taskBar = document.createElement('div');
+            const assignee = assignees.find(a => a.id === task.assigneeId);
+            const assigneeName = assignee ? assignee.name : 'Unassigned';
+            const initials = getInitials(assigneeName);
+            const avatarColor = getAvatarColor(assigneeName);
+            
+            const statusColorName = statusColors[task.status] || 'gray';
+            const barColorClass = barColorClasses[statusColorName];
+
+            taskBar.className = `flex items-center p-1 rounded shadow text-white text-xs h-8 my-1 ${barColorClass} z-20`;
+            taskBar.style.gridRow = `${rowIndex}`;
+            taskBar.style.gridColumn = `${startIndex + 1} / ${endIndex + 2}`;
+
+            const avatarEl = document.createElement('div');
+            avatarEl.title = assigneeName;
+            avatarEl.className = `group relative flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full ${avatarColor} text-white text-xs font-bold mr-2`;
+            avatarEl.textContent = initials;
+
+            const descriptionEl = document.createElement('div');
+            descriptionEl.className = 'truncate min-w-0';
+            descriptionEl.title = task.description;
+            descriptionEl.textContent = task.description;
+
+            taskBar.appendChild(avatarEl);
+            taskBar.appendChild(descriptionEl);
+            timelineGrid.appendChild(taskBar);
+        }
+    });
+}
+
+
+// --- Initial Load ---
+window.addEventListener('DOMContentLoaded', () => {
+    initializeTimelineFilters();
+    renderTimeline();
+    toggleSubmenu('sprint-submenu');
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#timeline-filter-container .relative')) {
+            closeAllFilterDropdowns();
+        }
+    });
+});
+
+</script>
+
+</body>
+</html>

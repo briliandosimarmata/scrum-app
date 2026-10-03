@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline - Assignee</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar.mobile-hidden {
+            transform: translateX(-100%);
+        }
+        .sidebar-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
+        .sidebar-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        @media (min-width: 768px) {
+            .sidebar.mobile-hidden {
+                transform: translateX(0);
+            }
+        }
+        /* Enhanced scrollbar styling */
+        .overflow-x-auto::-webkit-scrollbar {
+            height: 12px;
+        }
+        .overflow-x-auto::-webkit-scrollbar-track {
+            background: linear-gradient(90deg, #f1f5f9, #e2e8f0);
+            border-radius: 6px;
+        }
+        .overflow-x-auto::-webkit-scrollbar-thumb {
+            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+            border-radius: 6px;
+            border: 2px solid #f1f5f9;
+        }
+        .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(90deg, #2563eb, #1e40af);
+        }
+    </style>
+</head>
+<body class="bg-blue-50">
+
+    <div class="flex h-screen bg-gray-100">
+        <!-- Mobile Overlay -->
+        <div id="sidebar-overlay" class="sidebar-overlay fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden hidden"></div>
+        
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar fixed md:relative w-64 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col h-screen z-50 md:z-auto">
+            <!-- Sidebar Header (Sticky) -->
+            <div class="h-16 flex items-center justify-between px-4 border-b border-gray-200 flex-shrink-0 bg-white sticky top-0 z-10">
+                <div>
+                    <h1 class="text-lg font-bold text-gray-800">Scrum Board</h1>
+                    <p class="text-xs text-gray-500">Sprint 1 - E-commerce Platform</p>
+                </div>
+                <button id="mobile-close-btn" class="md:hidden text-gray-500 hover:text-gray-700">
+                    <i class="fa-solid fa-times text-2xl"></i>
+                </button>
+            </div>
+
+            <!-- Navigation (Scrollable) -->
+            <div class="flex-1 overflow-y-auto">
+                <nav class="px-4 py-6 space-y-2">
+                    <a href="assignee-dashboard.html" class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg">
+                        <i class="fa-solid fa-table-columns w-6 text-center"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="assignee-my-tasks.html" class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg">
+                        <i class="fa-solid fa-tasks w-6 text-center"></i>
+                        <span>My Tasks</span>
+                    </a>
+                    <a href="assignee-timeline.html" class="flex items-center px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-lg">
+                        <i class="fa-solid fa-calendar-days w-6 text-center"></i>
+                        <span>Timeline</span>
+                    </a>
+                    <a href="assignee-sprint-list.html" class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg">
+                        <i class="fa-solid fa-exchange-alt w-6 text-center"></i>
+                        <span>Switch Sprint</span>
+                    </a>
+                </nav>
+            </div>
+
+            <!-- Sidebar Footer (Sticky) -->
+            <div class="p-4 border-t border-gray-200 flex-shrink-0 bg-white sticky bottom-0 z-10">
+                <a href="../login.html" class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg">
+                    <i class="fa-solid fa-sign-out-alt w-6 text-center"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto md:ml-0">
+            <!-- Header -->
+            <header class="bg-white shadow-sm sticky top-0 z-30">
+                <div class="flex justify-between items-center p-4 sm:p-6">
+                    <div class="flex items-center">
+                        <button id="mobile-menu-btn" class="md:hidden mr-4 text-gray-600 hover:text-gray-800">
+                            <i class="fa-solid fa-bars text-lg"></i>
+                        </button>
+                        <h2 class="text-2xl font-bold text-gray-800">My Timeline</h2>
+                    </div>
+                    <div class="flex items-center">
+                        <div class="relative">
+                            <!-- Desktop: Full user info in navbar -->
+                            <button id="user-avatar-btn" class="flex items-center space-x-2 text-sm text-gray-600 hover:text-gray-800">
+                                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                                    JD
+                                </div>
+                                <div class="hidden md:block">
+                                    <div class="text-sm font-medium text-gray-800">John Doe</div>
+                                    <div class="text-xs text-gray-500">john.doe@email.com</div>
+                                </div>
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                            </button>
+                            
+                            <!-- Avatar Dropdown -->
+                            <div id="avatar-dropdown" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200">
+                                <!-- Mobile: User info in dropdown -->
+                                <div class="md:hidden px-4 py-2 border-b border-gray-200">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                            JD
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-800">John Doe</div>
+                                            <div class="text-xs text-gray-500">john.doe@email.com</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:bg-gray-100 cursor-not-allowed">
+                                    <i class="fa-solid fa-cog mr-2"></i>Settings
+                                </a>
+                                <a href="../login.html" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    <i class="fa-solid fa-sign-out-alt mr-2"></i>Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="p-4 sm:p-6 lg:p-8">
+                
+                <!-- Timeline (Card-based for all devices) -->
+                <div id="timeline-container">
+                    <!-- Timeline will be rendered here -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty-state" class="hidden text-center py-12">
+                    <div class="max-w-md mx-auto">
+                        <i class="fa-solid fa-calendar-xmark text-6xl text-gray-300 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">No Tasks in Timeline</h3>
+                        <p class="text-gray-600">
+                            You don't have any tasks with timeline information in this sprint.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Mobile sidebar functionality
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileCloseBtn = document.getElementById('mobile-close-btn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+        function openSidebar() {
+            sidebar.classList.remove('mobile-hidden');
+            sidebarOverlay.classList.remove('hidden');
+        }
+
+        function closeSidebar() {
+            sidebar.classList.add('mobile-hidden');
+            sidebarOverlay.classList.add('hidden');
+        }
+
+        // Check if screen is mobile size
+        function isMobile() {
+            return window.innerWidth < 768; // md breakpoint
+        }
+
+        // Handle window resize
+        function handleResize() {
+            if (!isMobile()) {
+                // Desktop: always show sidebar, remove mobile classes
+                sidebar.classList.remove('mobile-hidden');
+                sidebarOverlay.classList.add('hidden');
+            } else {
+                // Mobile: hide sidebar by default
+                sidebar.classList.add('mobile-hidden');
+                sidebarOverlay.classList.add('hidden');
+            }
+        }
+
+        mobileMenuBtn.addEventListener('click', openSidebar);
+        mobileCloseBtn.addEventListener('click', closeSidebar);
+        sidebarOverlay.addEventListener('click', closeSidebar);
+        
+        // Handle window resize
+        window.addEventListener('resize', handleResize);
+        
+        // Initialize sidebar state
+        handleResize();
+
+        // Avatar dropdown functionality
+        const avatarBtn = document.getElementById('user-avatar-btn');
+        const avatarDropdown = document.getElementById('avatar-dropdown');
+
+        avatarBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            avatarDropdown.classList.toggle('hidden');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!avatarBtn.contains(e.target) && !avatarDropdown.contains(e.target)) {
+                avatarDropdown.classList.add('hidden');
+            }
+        });
+
+        // Mock data for timeline
+        const mockTimelineData = {
+            startDate: '2024-10-01',
+            endDate: '2024-12-15',
+            holidays: ['2024-10-15', '2024-10-28', '2024-11-28', '2024-11-29'],
+            taskColumn: [
+                { id: 1, code: 'MBAP-T-01', description: 'Setup project structure' },
+                { id: 2, code: 'MBAP-T-02', description: 'Develop dashboard component' },
+                { id: 3, code: 'MBAP-T-03', description: 'Implement authentication' },
+                { id: 4, code: 'MBAP-T-04', description: 'Create UI components' },
+                { id: 5, code: 'MBAP-T-05', description: 'Performance optimization' },
+                { id: 6, code: 'MBAP-T-06', description: 'API integration' },
+                { id: 7, code: 'MBAP-T-07', description: 'Database optimization' },
+                { id: 8, code: 'MBAP-T-08', description: 'Testing and QA' }
+            ],
+            taskBars: [
+                // October tasks
+                {
+                    id: 1,
+                    code: 'MBAP-T-01',
+                    description: 'Setup project structure',
+                    status: 'done',
+                    priority: 'high',
+                    assigneeName: 'John Doe',
+                    departmentId: 'frontend',
+                    startDate: '2024-10-01',
+                    endDate: '2024-10-03'
+                },
+                {
+                    id: 2,
+                    code: 'MBAP-T-02',
+                    description: 'Develop dashboard component',
+                    status: 'in_progress',
+                    priority: 'high',
+                    assigneeName: 'John Doe',
+                    departmentId: 'frontend',
+                    startDate: '2024-10-04',
+                    endDate: '2024-10-10'
+                },
+                {
+                    id: 3,
+                    code: 'MBAP-T-03',
+                    description: 'Implement authentication',
+                    status: 'in_progress',
+                    priority: 'medium',
+                    assigneeName: 'John Doe',
+                    departmentId: 'frontend',
+                    startDate: '2024-10-11',
+                    endDate: '2024-10-18'
+                },
+                {
+                    id: 4,
+                    code: 'MBAP-T-04',
+                    description: 'Create UI components',
+                    status: 'todo',
+                    priority: 'medium',
+                    assigneeName: 'John Doe',
+                    departmentId: 'frontend',
+                    startDate: '2024-10-19',
+                    endDate: '2024-10-25'
+                },
+                {
+                    id: 5,
+                    code: 'MBAP-T-05',
+                    description: 'Performance optimization',
+                    status: 'todo',
+                    priority: 'low',
+                    assigneeName: 'John Doe',
+                    departmentId: 'frontend',
+                    startDate: '2024-10-26',
+                    endDate: '2024-11-02'
+                },
+                // November tasks
+                {
+                    id: 6,
+                    code: 'MBAP-T-06',
+                    description: 'API integration',
+                    status: 'todo',
+                    priority: 'high',
+                    assigneeName: 'John Doe',
+                    departmentId: 'frontend',
+                    startDate: '2024-11-05',
+                    endDate: '2024-11-12'
+                },
+                {
+                    id: 7,
+                    code: 'MBAP-T-07',
+                    description: 'Database optimization',
+                    status: 'todo',
+                    priority: 'medium',
+                    assigneeName: 'John Doe',
+                    departmentId: 'frontend',
+                    startDate: '2024-11-13',
+                    endDate: '2024-11-20'
+                },
+                {
+                    id: 8,
+                    code: 'MBAP-T-08',
+                    description: 'Testing and QA',
+                    status: 'todo',
+                    priority: 'high',
+                    assigneeName: 'John Doe',
+                    departmentId: 'frontend',
+                    startDate: '2024-11-21',
+                    endDate: '2024-11-30'
+                }
+            ]
+        };
+
+        // Status colors
+        const statusColors = {
+            'todo': 'bg-gray-500',
+            'in_progress': 'bg-blue-500',
+            'done': 'bg-green-500',
+            'closed': 'bg-red-400'
+        };
+
+        // Month navigation state
+        let currentMonthIndex = 0;
+        let availableMonths = [];
+
+        // Generate date range
+        function generateDateRange(startDate, endDate, holidays) {
+            const dates = [];
+            let currentDate = new Date(startDate + 'T00:00:00');
+            const lastDate = new Date(endDate + 'T00:00:00');
+            
+            while (currentDate <= lastDate) {
+                const dateString = currentDate.toISOString().split('T')[0];
+                const dayOfWeek = currentDate.getDay();
+                const isHoliday = holidays.includes(dateString);
+                
+                dates.push({
+                    date: dateString,
+                    dayOfWeek,
+                    dayName: currentDate.toLocaleDateString('en-US', { weekday: 'short' }),
+                    isHoliday,
+                    month: currentDate.toLocaleDateString('default', { month: 'long', year: 'numeric' }),
+                    monthIndex: currentDate.getMonth()
+                });
+                
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            return dates;
+        }
+
+        // Get month groups
+        function getMonthGroups(dates) {
+            const groups = {};
+            
+            dates.forEach((date, index) => {
+                if (groups[date.month] == null) {
+                    groups[date.month] = { start: index + 1, count: 0 };
+                }
+                groups[date.month].count++;
+            });
+            
+            return groups;
+        }
+
+        // Get initials from name
+        function getInitials(name) {
+            if (name == null || name === '') return '?';
+            const parts = name.split(' ').filter(p => p);
+            if (parts.length > 1) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            if (parts.length === 1 && parts[0].length > 1) return (parts[0][0] + parts[0][1]).toUpperCase();
+            if (parts.length === 1) return parts[0][0].toUpperCase();
+            return '?';
+        }
+
+        // Get avatar color
+        function getAvatarColor(name) {
+            const colors = ['bg-red-500', 'bg-green-500', 'bg-purple-500', 'bg-indigo-500', 'bg-pink-500', 'bg-yellow-500', 'bg-teal-500'];
+            if (name == null || name === '') return 'bg-gray-400';
+            let hash = 0;
+            for (let i = 0; i < name.length; i++) {
+                hash = name.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            return colors[Math.abs(hash % colors.length)];
+        }
+
+        // Get task bar position
+        function getTaskBarPosition(taskBar, dates) {
+            const taskColumn = mockTimelineData.taskColumn;
+            const taskIndex = taskColumn.findIndex(task => task.id === taskBar.id);
+            
+            if (taskIndex === -1) {
+                return { gridRow: 1, gridColumn: '1' };
+            }
+            
+            const rowPosition = taskIndex + 3; // +3 because of month and date headers
+            
+            const startIndex = dates.findIndex(d => d.date === taskBar.startDate);
+            const endIndex = dates.findIndex(d => d.date === taskBar.endDate);
+            
+            if (startIndex === -1 || endIndex === -1) {
+                return { gridRow: rowPosition, gridColumn: '1' };
+            }
+            
+            return {
+                gridRow: rowPosition,
+                gridColumn: `${startIndex + 1} / ${endIndex + 2}`
+            };
+        }
+
+        // Render timeline
+        function renderTimeline() {
+            const timelineContainer = document.getElementById('timeline-container');
+            const emptyState = document.getElementById('empty-state');
+            
+            if (mockTimelineData.taskColumn.length === 0) {
+                timelineContainer.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            timelineContainer.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            const dates = generateDateRange(mockTimelineData.startDate, mockTimelineData.endDate, mockTimelineData.holidays);
+            const monthGroups = getMonthGroups(dates);
+
+            // Render unified timeline (card-based layout for all devices)
+            renderUnifiedTimeline(timelineContainer, dates, monthGroups);
+        }
+
+        // Render unified timeline (card-based layout for all devices)
+        function renderUnifiedTimeline(timelineContainer, dates, monthGroups) {
+            // Get available months with data
+            availableMonths = Object.keys(monthGroups).filter(month => {
+                const monthTasks = mockTimelineData.taskBars.filter(taskBar => {
+                    const taskDate = new Date(taskBar.startDate);
+                    const taskMonth = taskDate.toLocaleDateString('default', { month: 'long', year: 'numeric' });
+                    return taskMonth === month;
+                });
+                return monthTasks.length > 0;
+            });
+
+            // Ensure currentMonthIndex is valid
+            if (currentMonthIndex >= availableMonths.length) {
+                currentMonthIndex = 0;
+            }
+
+            const currentMonth = availableMonths[currentMonthIndex];
+            if (!currentMonth) {
+                timelineContainer.innerHTML = '<div class="text-center py-8 text-gray-500">No timeline data available</div>';
+                return;
+            }
+
+            // Get tasks for current month
+            const monthTasks = mockTimelineData.taskBars.filter(taskBar => {
+                const taskDate = new Date(taskBar.startDate);
+                const taskMonth = taskDate.toLocaleDateString('default', { month: 'long', year: 'numeric' });
+                return taskMonth === currentMonth;
+            });
+
+            // Build pagination header
+            const hasPrevious = currentMonthIndex > 0;
+            const hasNext = currentMonthIndex < availableMonths.length - 1;
+
+            let timelineHTML = `
+                <!-- Month Navigation Header -->
+                <div class="flex items-center justify-center mb-6">
+                    <div class="flex items-center bg-white rounded-xl shadow-sm px-4 py-3 border border-gray-200">
+                        ${hasPrevious ? `
+                            <button onclick="navigateMonth(-1)" class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition-colors mr-3">
+                                <i class="fa-solid fa-chevron-left text-gray-600"></i>
+                            </button>
+                        ` : `
+                            <div class="w-8 h-8 mr-3"></div>
+                        `}
+                        
+                        <div class="flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-semibold">
+                            <i class="fa-solid fa-calendar-days mr-2"></i>
+                            ${currentMonth}
+                        </div>
+                        
+                        ${hasNext ? `
+                            <button onclick="navigateMonth(1)" class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition-colors ml-3">
+                                <i class="fa-solid fa-chevron-right text-gray-600"></i>
+                            </button>
+                        ` : `
+                            <div class="w-8 h-8 ml-3"></div>
+                        `}
+                    </div>
+                </div>
+                
+                <!-- Task Cards Grid (responsive) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    ${monthTasks.map(taskBar => `
+                        <div class="bg-white rounded-xl shadow-sm border-l-4 ${getStatusBorderColor(taskBar.status)} p-4 hover:shadow-md transition-shadow">
+                            <div class="flex items-start justify-between mb-3">
+                                <div class="flex-1">
+                                    <h3 class="font-bold text-gray-800 text-sm mb-1">${taskBar.code}</h3>
+                                    <p class="text-gray-600 text-sm line-clamp-2">${taskBar.description}</p>
+                                </div>
+                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(taskBar.status)}">
+                                    ${getStatusName(taskBar.status)}
+                                </span>
+                            </div>
+                            
+                            <div class="flex items-center justify-between text-xs text-gray-500">
+                                <div class="flex items-center">
+                                    <i class="fa-solid fa-calendar mr-1"></i>
+                                    <span>${formatDateRange(taskBar.startDate, taskBar.endDate)}</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fa-solid fa-clock mr-1"></i>
+                                    <span>${getDuration(taskBar.startDate, taskBar.endDate)} days</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            timelineContainer.innerHTML = timelineHTML;
+        }
+
+        // Month navigation function
+        function navigateMonth(direction) {
+            const newIndex = currentMonthIndex + direction;
+            if (newIndex >= 0 && newIndex < availableMonths.length) {
+                currentMonthIndex = newIndex;
+                // Re-render the timeline
+                const dates = generateDateRange(mockTimelineData.startDate, mockTimelineData.endDate, mockTimelineData.holidays);
+                const monthGroups = getMonthGroups(dates);
+                const timelineContainer = document.getElementById('timeline-container');
+                renderUnifiedTimeline(timelineContainer, dates, monthGroups);
+            }
+        }
+
+        // Helper functions for mobile timeline
+        function getStatusBorderColor(status) {
+            const colors = {
+                'todo': 'border-gray-300',
+                'in_progress': 'border-blue-500',
+                'done': 'border-green-500',
+                'closed': 'border-red-500'
+            };
+            return colors[status] || 'border-gray-300';
+        }
+
+        function getStatusBadgeClass(status) {
+            const classes = {
+                'todo': 'bg-gray-100 text-gray-700',
+                'in_progress': 'bg-blue-100 text-blue-700',
+                'done': 'bg-green-100 text-green-700',
+                'closed': 'bg-red-100 text-red-700'
+            };
+            return classes[status] || 'bg-gray-100 text-gray-700';
+        }
+
+        function getStatusName(status) {
+            const names = {
+                'todo': 'To Do',
+                'in_progress': 'In Progress',
+                'done': 'Done',
+                'closed': 'Closed'
+            };
+            return names[status] || 'Unknown';
+        }
+
+        function formatDateRange(startDate, endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const endStr = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            return `${startStr} - ${endStr}`;
+        }
+
+        function getDuration(startDate, endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            const diffTime = Math.abs(end - start);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+            return diffDays;
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if sprint is selected
+            const selectedSprintId = localStorage.getItem('selectedSprintId');
+            if (!selectedSprintId) {
+                // Redirect to sprint selection if no sprint is selected
+                window.location.href = 'assignee-sprint-list.html';
+            }
+            
+            renderTimeline();
+        });
+    </script>
+
+</body>
+</html>

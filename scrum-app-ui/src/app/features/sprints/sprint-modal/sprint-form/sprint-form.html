@@ -1,0 +1,63 @@
+<form [formGroup]="sprintForm" novalidate>
+  <div class="space-y-6">
+    <div>
+      <label for="sprint-name" class="block text-sm font-medium text-gray-700">Sprint Name</label>
+      <input 
+        type="text" 
+        id="sprint-name" 
+        formControlName="name"
+        required 
+        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+        placeholder="e.g., Sprint 1 - UI Redesign">
+    </div>
+    
+    <div>
+      <label for="story-points-per-day" class="block text-sm font-medium text-gray-700">Story Points per Day</label>
+      <input 
+        type="number" 
+        id="story-points-per-day" 
+        formControlName="storyPointsPerDay"
+        min="0.1" 
+        step="0.1" 
+        required 
+        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" 
+        placeholder="e.g., 1.5">
+    </div>
+    
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label for="start-date" class="block text-sm font-medium text-gray-700">Start Date</label>
+        <input 
+          type="date" 
+          id="start-date" 
+          formControlName="startDate"
+          required 
+          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+      </div>
+      <div>
+        <label for="end-date" class="block text-sm font-medium text-gray-700">End Date</label>
+        <input 
+          type="date" 
+          id="end-date" 
+          formControlName="endDate"
+          required 
+          class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+      </div>
+    </div>
+    
+    <!-- Date Range Error Message -->
+    @if (hasDateRangeError()) {
+      <div class="text-red-600 text-sm mt-2">
+        <i class="fa-solid fa-exclamation-triangle mr-1"></i>
+        {{ dateRangeErrorMessage() }}
+      </div>
+    }
+    
+        <div>
+          <label for="total-work-days" class="block text-sm font-medium text-gray-700">Total Days of Work</label>
+          <div class="mt-1 block w-full px-3 py-2 border border-gray-200 bg-blue-50 rounded-md text-lg font-bold text-blue-800">
+            {{ totalWorkDays() }}
+          </div>
+        </div>
+  </div>
+</form>

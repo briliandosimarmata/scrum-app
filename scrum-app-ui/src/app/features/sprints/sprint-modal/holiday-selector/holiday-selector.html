@@ -1,0 +1,68 @@
+<div>
+  <h4 class="text-base font-semibold text-gray-800 mb-2">Holiday Selector</h4>
+  <p class="text-sm text-gray-500 mb-4">Select recurring holidays or click specific dates on the calendar.</p>
+  
+  <!-- Recurring Holidays -->
+  <div class="flex justify-around mb-4">
+    <div class="text-center">
+      <input type="checkbox" id="day-sun" (change)="onRecurringHolidayToggle(0, $event.target.checked)" class="day-checkbox">
+      <label for="day-sun" class="day-label cursor-pointer w-10 h-10 flex items-center justify-center rounded-full text-sm font-medium">Su</label>
+    </div>
+    <div class="text-center">
+      <input type="checkbox" id="day-mon" (change)="onRecurringHolidayToggle(1, $event.target.checked)" class="day-checkbox">
+      <label for="day-mon" class="day-label cursor-pointer w-10 h-10 flex items-center justify-center rounded-full text-sm font-medium">Mo</label>
+    </div>
+    <div class="text-center">
+      <input type="checkbox" id="day-tue" (change)="onRecurringHolidayToggle(2, $event.target.checked)" class="day-checkbox">
+      <label for="day-tue" class="day-label cursor-pointer w-10 h-10 flex items-center justify-center rounded-full text-sm font-medium">Tu</label>
+    </div>
+    <div class="text-center">
+      <input type="checkbox" id="day-wed" (change)="onRecurringHolidayToggle(3, $event.target.checked)" class="day-checkbox">
+      <label for="day-wed" class="day-label cursor-pointer w-10 h-10 flex items-center justify-center rounded-full text-sm font-medium">We</label>
+    </div>
+    <div class="text-center">
+      <input type="checkbox" id="day-thu" (change)="onRecurringHolidayToggle(4, $event.target.checked)" class="day-checkbox">
+      <label for="day-thu" class="day-label cursor-pointer w-10 h-10 flex items-center justify-center rounded-full text-sm font-medium">Th</label>
+    </div>
+    <div class="text-center">
+      <input type="checkbox" id="day-fri" (change)="onRecurringHolidayToggle(5, $event.target.checked)" class="day-checkbox">
+      <label for="day-fri" class="day-label cursor-pointer w-10 h-10 flex items-center justify-center rounded-full text-sm font-medium">Fr</label>
+    </div>
+    <div class="text-center">
+      <input type="checkbox" id="day-sat" (change)="onRecurringHolidayToggle(6, $event.target.checked)" class="day-checkbox">
+      <label for="day-sat" class="day-label cursor-pointer w-10 h-10 flex items-center justify-center rounded-full text-sm font-medium">Sa</label>
+    </div>
+  </div>
+
+  <!-- Calendar -->
+  <div class="bg-white rounded-lg">
+    <div class="flex items-center justify-between px-2 py-2">
+      <button 
+        type="button" 
+        (click)="onPreviousMonth()"
+        class="p-2 rounded-full hover:bg-gray-100 cursor-pointer">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      <h5 class="text-sm font-semibold">{{ getMonthYear() }}</h5>
+      <button 
+        type="button" 
+        (click)="onNextMonth()"
+        class="p-2 rounded-full hover:bg-gray-100 cursor-pointer">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+    <div class="grid grid-cols-7 gap-1 p-2">
+      <!-- Day headers -->
+      <div class="text-center text-xs font-bold text-gray-500">Su</div>
+      <div class="text-center text-xs font-bold text-gray-500">Mo</div>
+      <div class="text-center text-xs font-bold text-gray-500">Tu</div>
+      <div class="text-center text-xs font-bold text-gray-500">We</div>
+      <div class="text-center text-xs font-bold text-gray-500">Th</div>
+      <div class="text-center text-xs font-bold text-gray-500">Fr</div>
+      <div class="text-center text-xs font-bold text-gray-500">Sa</div>
+      
+      <!-- Calendar days will be rendered by parent component -->
+      <ng-content></ng-content>
+    </div>
+  </div>
+</div>

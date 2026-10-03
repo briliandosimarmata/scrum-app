@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignees - Scrum Board</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .submenu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .custom-dropdown { position: relative; }
+        .custom-dropdown-panel {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 50;
+            min-width: 100%;
+            max-height: 250px;
+            overflow-y: auto;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .custom-dropdown-panel.show { display: block; }
+        .custom-dropdown-option { padding: 8px 12px; cursor: pointer; font-size: 0.875rem; }
+        .custom-dropdown-option:hover { background-color: #f3f4f6; }
+    </style>
+</head>
+<body class="bg-blue-50">
+
+    <div class="flex h-screen bg-gray-100">
+        <!-- Sidebar -->
+        <aside class="w-64 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col h-screen">
+            <div class="h-16 flex items-center justify-center border-b border-gray-200 flex-shrink-0">
+                <h1 class="text-xl font-bold text-gray-800">E-commerce Platform</h1>
+            </div>
+            <!-- Scrollable Navigation Area -->
+            <div class="flex-1 overflow-y-auto">
+                <nav class="px-4 py-6 space-y-2">
+                <a href="dashboard.html" class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg">
+                    <i class="fa-solid fa-table-columns w-6 text-center"></i>
+                    <span>Dashboard</span>
+                </a>
+                <div>
+                    <button onclick="toggleSubmenu('masters-submenu')" class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-database w-6 text-center"></i>
+                            <span>Masters</span>
+                        </div>
+                        <i id="masters-submenu-arrow" class="fa-solid fa-chevron-down text-xs transition-transform rotate-180"></i>
+                    </button>
+                    <div id="masters-submenu" class="submenu ml-4 mt-1 space-y-1">
+                        <a href="assignee.html" class="block px-4 py-2 text-sm font-semibold text-blue-700 bg-blue-100 rounded-lg">Assignee</a>
+                        <a href="department.html" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Department</a>
+                    </div>
+                </div>
+                <div class="pt-4">
+                    <button class="w-full flex items-center justify-center px-4 py-2.5 border border-dashed border-blue-400 rounded-lg text-sm font-semibold text-blue-600 hover:bg-blue-100">
+                        <i class="fa-solid fa-plus mr-2"></i>
+                        <span>Add New Sprint</span>
+                    </button>
+                </div>
+                
+                <!-- Sprint Menu Section -->
+                <div class="pt-4 space-y-2 border-t border-gray-200 mt-4">
+                    <!-- Sprint Dropdown UI -->
+                    <div class="px-4 relative">
+                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Active Sprint</label>
+                        <button type="button" class="w-full flex items-center justify-between px-3 py-2 text-left bg-white border border-gray-300 rounded-md shadow-sm">
+                            <span class="text-sm text-gray-700 truncate">Sprint 1 - UI Redesign</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                        </button>
+                    </div>
+                    <!-- Sprint Submenu -->
+                    <div>
+                        <button onclick="toggleSubmenu('sprint-submenu')" class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fa-solid fa-person-running w-6 text-center"></i>
+                                <span>Sprint Menu</span>
+                            </div>
+                            <i id="sprint-submenu-arrow" class="fa-solid fa-chevron-down text-xs transition-transform"></i>
+                        </button>
+                        <div id="sprint-submenu" class="submenu ml-4 mt-1 space-y-1">
+                            <a href="backlog.html" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Backlog</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Department Tasks</a>
+                            <a href="assignee-tasks.html" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Assignee Tasks</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Timeline</a>
+                            <div class="border-t my-1"></div>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Sprint Setting</a>
+                        </div>
+                    </div>
+                </div>
+                </nav>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex-shrink-0">
+                <a href="project-list.html" class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg">
+                    <i class="fa-solid fa-arrow-left w-6 text-center"></i>
+                    <span>Back to Projects</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <header class="bg-white shadow-sm">
+                <div class="flex justify-between items-center p-4 sm:p-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Assignees</h2>
+                    <div class="flex items-center">
+                        <span class="text-sm text-gray-600 mr-4">John Doe</span>
+                        <a href="login.html" class="text-sm font-medium text-blue-600 hover:text-blue-500">Logout</a>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-4 sm:p-6 lg:p-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
+                        <div class="relative flex-1 max-w-md">
+                            <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm"></i>
+                            <input type="text" id="assignee-search" class="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Search assignees by name or code...">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="discard-btn" disabled class="px-4 py-2 rounded-md text-sm font-medium text-gray-700 bg-gray-200 cursor-not-allowed">Discard Changes</button>
+                            <button id="save-all-btn" disabled class="px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-300 cursor-not-allowed">Save All</button>
+                            <div class="h-6 border-l border-gray-300 mx-2"></div>
+                            <button id="add-assignee-btn" class="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                                <i class="fa-solid fa-plus mr-2"></i>
+                                Add New Assignee
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/3">Code</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/3">Name</th>
+                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="assignee-table-body" class="bg-white divide-y divide-gray-200">
+                                <!-- Mock Data Row 1 -->
+                                <tr data-id="1" data-original-name="Alice Johnson">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">AS-001</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <span class="assignee-name">Alice Johnson</span>
+                                        <input type="text" class="hidden border-gray-300 rounded-md shadow-sm w-full py-1 px-2" value="Alice Johnson">
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-4">
+                                        <button class="text-blue-600 hover:text-blue-900 edit-btn" title="Edit"><i class="fa-solid fa-pencil"></i></button>
+                                        <button class="text-red-600 hover:text-red-900 delete-btn" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <!-- Mock Data Row 2 -->
+                                <tr data-id="2" data-original-name="Bob Williams">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">AS-002</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        <span class="assignee-name">Bob Williams</span>
+                                        <input type="text" class="hidden border-gray-300 rounded-md shadow-sm w-full py-1 px-2" value="Bob Williams">
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-4">
+                                        <button class="text-blue-600 hover:text-blue-900 edit-btn" title="Edit"><i class="fa-solid fa-pencil"></i></button>
+                                        <button class="text-red-600 hover:text-red-900 delete-btn" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div id="pagination-container" class="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+                        <div id="pagination-info" class="text-sm text-gray-700">
+                            <!-- Pagination info will be inserted here -->
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div id="page-size-dropdown" class="custom-dropdown relative">
+                                <!-- Page size dropdown will be inserted here -->
+                            </div>
+                            <div id="pagination-controls" class="flex items-center gap-1">
+                                <!-- Pagination buttons will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- Sidebar Submenu Logic ---
+        function toggleSubmenu(submenuId) {
+            const submenu = document.getElementById(submenuId);
+            const arrow = document.getElementById(submenuId + '-arrow');
+            if (submenu.style.maxHeight && submenu.style.maxHeight !== '0px') {
+                submenu.style.maxHeight = '0px';
+                arrow.classList.remove('rotate-180');
+            } else {
+                submenu.style.maxHeight = submenu.scrollHeight + 'px';
+                arrow.classList.add('rotate-180');
+            }
+        }
+        // Auto-open the 'Masters' submenu on page load
+        window.onload = () => toggleSubmenu('masters-submenu');
+
+        // --- Assignee Page Batch Edit Logic ---
+        const addBtn = document.getElementById('add-assignee-btn');
+        const saveAllBtn = document.getElementById('save-all-btn');
+        const discardBtn = document.getElementById('discard-btn');
+        const tableBody = document.getElementById('assignee-table-body');
+        const searchInput = document.getElementById('assignee-search');
+        let newIdCounter = 3; // To generate unique codes for new assignees
+        let searchTerm = ''; // Track current search term
+
+        // --- Pagination State ---
+        let pagination = {
+            currentPage: 1,
+            itemsPerPage: 10,
+            totalPages: 0,
+            totalItems: 0
+        };
+        let lastPageSize = 10; // Track last page size to avoid unnecessary updates
+
+        // --- Search and Pagination Functionality ---
+        const getAllAssigneeRows = () => {
+            return Array.from(tableBody.querySelectorAll('tr')).map(row => {
+                const codeCell = row.querySelector('td:first-child');
+                const nameCell = row.querySelector('.assignee-name');
+                return {
+                    element: row,
+                    code: codeCell ? codeCell.textContent.toLowerCase() : '',
+                    name: nameCell ? nameCell.textContent.toLowerCase() : ''
+                };
+            });
+        };
+
+        const getFilteredAssignees = () => {
+            const allRows = getAllAssigneeRows();
+            const searchLower = searchTerm.toLowerCase();
+            
+            return allRows.filter(row => {
+                if (!searchTerm) return true;
+                return row.code.includes(searchLower) || row.name.includes(searchLower);
+            });
+        };
+
+        const renderAssigneesWithPagination = () => {
+            const filteredRows = getFilteredAssignees();
+            
+            // Hide all rows first
+            getAllAssigneeRows().forEach(row => {
+                row.element.style.display = 'none';
+            });
+            
+            // Update pagination metadata
+            pagination.totalItems = filteredRows.length;
+            pagination.totalPages = Math.ceil(pagination.totalItems / pagination.itemsPerPage);
+            
+            // Ensure current page is valid
+            if (pagination.currentPage > pagination.totalPages && pagination.totalPages > 0) {
+                pagination.currentPage = pagination.totalPages;
+            }
+            if (pagination.currentPage < 1) {
+                pagination.currentPage = 1;
+            }
+
+            // Calculate pagination slice
+            const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage;
+            const endIndex = startIndex + pagination.itemsPerPage;
+            const paginatedRows = filteredRows.slice(startIndex, endIndex);
+
+            // Show only current page rows
+            paginatedRows.forEach(row => {
+                row.element.style.display = '';
+            });
+            
+            // Update pagination controls
+            updatePaginationControls();
+        };
+
+        const handleAssigneeSearch = (event) => {
+            searchTerm = event.target.value;
+            resetPagination();
+            renderAssigneesWithPagination();
+        };
+
+        // --- Pagination Functions ---
+        function updatePaginationControls() {
+            updatePaginationInfo();
+            updatePaginationButtons();
+            updatePageSizeDropdown();
+        }
+
+        function updatePageSizeDropdown() {
+            const container = document.getElementById('page-size-dropdown');
+            if (!container) return;
+            
+            const currentSize = pagination.itemsPerPage;
+            
+            // Only update if page size has changed and dropdown already exists
+            if (currentSize === lastPageSize && container.querySelector('.dropdown-trigger')) {
+                return;
+            }
+            
+            lastPageSize = currentSize;
+            const options = [5, 10, 25, 50];
+            
+            const triggerHTML = `
+                <div class="dropdown-trigger flex items-center justify-between w-16 bg-white border border-gray-300 rounded-md shadow-sm px-3 py-1.5 text-sm cursor-pointer">
+                    <span class="truncate">${currentSize}</span>
+                    <i class="fa-solid fa-chevron-down text-xs text-gray-400 ml-1"></i>
+                </div>
+            `;
+            
+            const optionsHTML = options.map(size => 
+                `<li class="custom-dropdown-option ${size === currentSize ? 'bg-blue-50 text-blue-700' : ''}" data-size="${size}">${size}</li>`
+            ).join('');
+            
+            const panelHTML = `
+                <div class="custom-dropdown-panel">
+                    <ul>
+                        ${optionsHTML}
+                    </ul>
+                </div>
+            `;
+            
+            container.innerHTML = triggerHTML + panelHTML;
+            
+            // Add event listeners using proper event delegation
+            const trigger = container.querySelector('.dropdown-trigger');
+            const panel = container.querySelector('.custom-dropdown-panel');
+            const optionElements = container.querySelectorAll('.custom-dropdown-option');
+            
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isShowing = panel.classList.contains('show');
+                
+                // Close all other dropdowns
+                document.querySelectorAll('.custom-dropdown-panel.show').forEach(p => p.classList.remove('show'));
+                
+                if (!isShowing) {
+                    panel.classList.add('show');
+                }
+            });
+            
+            optionElements.forEach(option => {
+                option.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const size = parseInt(option.dataset.size);
+                    pagination.itemsPerPage = size;
+                    resetPagination();
+                    renderAssigneesWithPagination();
+                    
+                    // Close dropdown
+                    panel.classList.remove('show');
+                });
+            });
+        }
+
+
+        function updatePaginationInfo() {
+            const infoContainer = document.getElementById('pagination-info');
+            if (!infoContainer) return;
+            
+            const startItem = pagination.totalItems === 0 ? 0 : (pagination.currentPage - 1) * pagination.itemsPerPage + 1;
+            const endItem = Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems);
+            
+            infoContainer.textContent = `Showing ${startItem} to ${endItem} of ${pagination.totalItems} assignees`;
+        }
+
+        function updatePaginationButtons() {
+            const controlsContainer = document.getElementById('pagination-controls');
+            if (!controlsContainer) return;
+            
+            controlsContainer.innerHTML = '';
+            
+            if (pagination.totalPages <= 1) return;
+            
+            // First and Previous buttons (icon buttons)
+            const firstBtn = createIconButton('fa-solid fa-angles-left', 1, pagination.currentPage === 1, 'First');
+            const prevBtn = createIconButton('fa-solid fa-chevron-left', pagination.currentPage - 1, pagination.currentPage === 1, 'Previous');
+            
+            controlsContainer.appendChild(firstBtn);
+            controlsContainer.appendChild(prevBtn);
+            
+            // Page numbers with ellipsis
+            const pageNumbers = generatePageNumbers();
+            pageNumbers.forEach(item => {
+                if (item === '...') {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.className = 'px-3 py-1 text-sm text-gray-500';
+                    ellipsis.textContent = '...';
+                    controlsContainer.appendChild(ellipsis);
+                } else {
+                    const pageBtn = createPaginationButton(item, item, pagination.currentPage === item);
+                    controlsContainer.appendChild(pageBtn);
+                }
+            });
+            
+            // Next and Last buttons (icon buttons)
+            const nextBtn = createIconButton('fa-solid fa-chevron-right', pagination.currentPage + 1, pagination.currentPage === pagination.totalPages, 'Next');
+            const lastBtn = createIconButton('fa-solid fa-angles-right', pagination.totalPages, pagination.currentPage === pagination.totalPages, 'Last');
+            
+            controlsContainer.appendChild(nextBtn);
+            controlsContainer.appendChild(lastBtn);
+        }
+
+        function createIconButton(iconClass, page, isDisabled, tooltip) {
+            const button = document.createElement('button');
+            button.className = `w-8 h-8 flex items-center justify-center text-sm border rounded-md transition-colors ${
+                isDisabled 
+                    ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' 
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+            }`;
+            button.title = tooltip; // Tooltip on hover
+            
+            const icon = document.createElement('i');
+            icon.className = iconClass;
+            button.appendChild(icon);
+            
+            if (!isDisabled) {
+                button.addEventListener('click', () => goToPage(page));
+            }
+            
+            return button;
+        }
+
+        function createPaginationButton(text, page, isDisabled) {
+            const button = document.createElement('button');
+            button.textContent = text;
+            button.className = `px-3 py-1 text-sm border rounded-md transition-colors ${
+                isDisabled 
+                    ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' 
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+            }`;
+            
+            if (!isDisabled) {
+                button.addEventListener('click', () => goToPage(page));
+            }
+            
+            return button;
+        }
+
+        function generatePageNumbers() {
+            const current = pagination.currentPage;
+            const total = pagination.totalPages;
+            const pages = [];
+            
+            if (total <= 7) {
+                // Show all pages if 7 or fewer
+                for (let i = 1; i <= total; i++) {
+                    pages.push(i);
+                }
+            } else {
+                // Always show first page
+                pages.push(1);
+                
+                if (current <= 4) {
+                    // Show first 5 pages, then ellipsis, then last page
+                    for (let i = 2; i <= 5; i++) {
+                        pages.push(i);
+                    }
+                    pages.push('...');
+                    pages.push(total);
+                } else if (current >= total - 3) {
+                    // Show first page, ellipsis, then last 5 pages
+                    pages.push('...');
+                    for (let i = total - 4; i <= total; i++) {
+                        pages.push(i);
+                    }
+                } else {
+                    // Show first page, ellipsis, current-1, current, current+1, ellipsis, last page
+                    pages.push('...');
+                    pages.push(current - 1);
+                    pages.push(current);
+                    pages.push(current + 1);
+                    pages.push('...');
+                    pages.push(total);
+                }
+            }
+            
+            return pages;
+        }
+
+        function goToPage(page) {
+            if (page >= 1 && page <= pagination.totalPages && page !== pagination.currentPage) {
+                pagination.currentPage = page;
+                renderAssigneesWithPagination();
+            }
+        }
+
+        function resetPagination() {
+            pagination.currentPage = 1;
+        }
+
+        const updateButtonStates = () => {
+            const hasChanges = tableBody.querySelector('.is-new, .is-dirty');
+            if (hasChanges) {
+                saveAllBtn.disabled = false;
+                discardBtn.disabled = false;
+                saveAllBtn.classList.remove('bg-blue-300', 'cursor-not-allowed');
+                saveAllBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                discardBtn.classList.remove('bg-gray-200', 'cursor-not-allowed');
+                discardBtn.classList.add('bg-white', 'hover:bg-gray-50', 'border', 'border-gray-300');
+            } else {
+                saveAllBtn.disabled = true;
+                discardBtn.disabled = true;
+                saveAllBtn.classList.add('bg-blue-300', 'cursor-not-allowed');
+                saveAllBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                discardBtn.classList.add('bg-gray-200', 'cursor-not-allowed');
+                discardBtn.classList.remove('bg-white', 'hover:bg-gray-50', 'border', 'border-gray-300');
+            }
+        };
+
+        addBtn.addEventListener('click', () => {
+            // Reset search filter and pagination
+            searchTerm = '';
+            searchInput.value = '';
+            resetPagination();
+            
+            const projectCode = localStorage.getItem('currentProjectCode') || 'PROJ';
+            const newCode = `${projectCode}-AS-${String(newIdCounter++).padStart(3, '0')}`;
+            const newRow = document.createElement('tr');
+            newRow.classList.add('is-new');
+            newRow.innerHTML = `
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${newCode}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <input type="text" class="border-gray-300 rounded-md shadow-sm w-full py-1 px-2" placeholder="Enter name">
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-4">
+                    <button class="text-red-600 hover:text-red-900 delete-btn" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            `;
+            tableBody.prepend(newRow);
+            newRow.querySelector('input').focus();
+            updateButtonStates();
+            
+            // Re-render with updated pagination and filters
+            renderAssigneesWithPagination();
+        });
+
+        saveAllBtn.addEventListener('click', () => {
+            if (saveAllBtn.disabled) return;
+
+            document.querySelectorAll('#assignee-table-body tr').forEach(row => {
+                const nameInput = row.querySelector('input[type="text"]');
+                if (row.classList.contains('is-new') || row.classList.contains('is-dirty')) {
+                    if (row.classList.contains('is-new') && !nameInput.value) {
+                        alert(`Assignee ${row.querySelector('td').textContent} must have a name.`);
+                        return;
+                    }
+
+                    const nameSpan = row.querySelector('.assignee-name');
+                    const newName = nameInput.value;
+
+                    if (nameSpan) { // Existing row
+                        nameSpan.textContent = newName;
+                        row.dataset.originalName = newName;
+                    } else { // New row
+                        row.querySelector('td:nth-child(2)').innerHTML = `
+                            <span class="assignee-name">${newName}</span>
+                            <input type="text" class="hidden border-gray-300 rounded-md shadow-sm w-full py-1 px-2" value="${newName}">
+                        `;
+                        row.dataset.originalName = newName;
+                        row.querySelector('td:last-child').innerHTML = `
+                            <button class="text-blue-600 hover:text-blue-900 edit-btn" title="Edit"><i class="fa-solid fa-pencil"></i></button>
+                            <button class="text-red-600 hover:text-red-900 delete-btn" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                        `;
+                    }
+                    
+                    row.classList.remove('is-new', 'is-dirty', 'editing');
+                    nameInput.classList.add('hidden');
+                    row.querySelector('.assignee-name')?.classList.remove('hidden');
+                }
+            });
+
+            alert('All changes saved successfully!');
+            updateButtonStates();
+        });
+
+        discardBtn.addEventListener('click', () => {
+            if (discardBtn.disabled) return;
+
+            if (!confirm('Are you sure you want to discard all unsaved changes?')) return;
+
+            document.querySelectorAll('#assignee-table-body tr').forEach(row => {
+                if (row.classList.contains('is-new')) {
+                    row.remove();
+                }
+                if (row.classList.contains('is-dirty')) {
+                    const nameSpan = row.querySelector('.assignee-name');
+                    const nameInput = row.querySelector('input[type="text"]');
+                    const originalName = row.dataset.originalName;
+
+                    nameInput.value = originalName;
+                    nameSpan.textContent = originalName;
+
+                    nameSpan.classList.remove('hidden');
+                    nameInput.classList.add('hidden');
+                    row.classList.remove('is-dirty', 'editing');
+                }
+            });
+            updateButtonStates();
+        });
+
+        tableBody.addEventListener('click', (e) => {
+            const row = e.target.closest('tr');
+            if (!row) return;
+
+            if (e.target.closest('.delete-btn')) {
+                const isNew = row.classList.contains('is-new');
+                if (isNew || confirm('Are you sure you want to delete this assignee?')) {
+                   row.remove();
+                   updateButtonStates();
+                   renderAssigneesWithPagination();
+                }
+            }
+
+            if (e.target.closest('.edit-btn')) {
+                const nameSpan = row.querySelector('.assignee-name');
+                const nameInput = row.querySelector('input[type="text"]');
+                
+                row.classList.toggle('editing');
+                nameSpan.classList.add('hidden');
+                nameInput.classList.remove('hidden');
+                nameInput.focus();
+            }
+        });
+
+        tableBody.addEventListener('input', (e) => {
+            const row = e.target.closest('tr');
+            if (!row || row.classList.contains('is-new')) return;
+
+            const nameInput = row.querySelector('input[type="text"]');
+            if (nameInput.value !== row.dataset.originalName) {
+                row.classList.add('is-dirty');
+            } else {
+                row.classList.remove('is-dirty');
+            }
+            updateButtonStates();
+        });
+
+        // --- Search Event Listener ---
+        searchInput.addEventListener('input', handleAssigneeSearch);
+
+        // --- Initial Load ---
+        window.addEventListener('DOMContentLoaded', () => {
+            // Initialize pagination
+            renderAssigneesWithPagination();
+            
+            // Close pagination dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('#page-size-dropdown')) {
+                    document.querySelectorAll('#page-size-dropdown .custom-dropdown-panel.show').forEach(panel => panel.classList.remove('show'));
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

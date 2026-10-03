@@ -1,0 +1,63 @@
+<div class="space-y-6">
+  @if (isLoading()) {
+    <div class="flex items-center justify-center min-h-40">
+      <div class="text-center">
+        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto mb-3"></div>
+        <p class="text-gray-600">Loading timeline...</p>
+      </div>
+    </div>
+  }
+
+  @if (!isLoading()) {
+    <div class="flex items-center justify-center mb-4">
+      <div class="flex items-center bg-white rounded-xl shadow-sm px-4 py-3 border border-gray-200">
+        <button (click)="navigateMonth(-1)" class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition-colors mr-3">
+          <i class="fa-solid fa-chevron-left text-gray-600"></i>
+        </button>
+        <div class="flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-semibold">
+          <i class="fa-solid fa-calendar-days mr-2"></i>
+          {{ months()[currentMonthIndex()] || 'No Data' }}
+        </div>
+        <button (click)="navigateMonth(1)" class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 transition-colors ml-3">
+          <i class="fa-solid fa-chevron-right text-gray-600"></i>
+        </button>
+      </div>
+    </div>
+
+    @if (visibleTasks().length === 0) {
+      <div class="text-center py-12">
+        <div class="max-w-md mx-auto">
+          <i class="fa-solid fa-calendar-xmark text-6xl text-gray-300 mb-4"></i>
+          <h3 class="text-xl font-semibold text-gray-800 mb-2">No Tasks in Timeline</h3>
+          <p class="text-gray-600">You don't have any tasks with timeline information in this month.</p>
+        </div>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        @for (t of visibleTasks(); track t.id) {
+          <div class="bg-white rounded-xl shadow-sm border-l-4 p-4 hover:shadow-md transition-shadow" [ngClass]="statusBorderClass(t.status)">
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex-1">
+                <h3 class="font-bold text-gray-800 text-sm mb-1">{{ t.code }}</h3>
+                <p class="text-gray-600 text-sm line-clamp-2">{{ t.description }}</p>
+              </div>
+              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" [ngClass]="statusBadgeClass(t.status)">
+                {{ statusDisplayName(t.status) }}
+              </span>
+            </div>
+            <div class="flex items-center justify-between text-xs text-gray-500">
+              <div class="flex items-center">
+                <i class="fa-solid fa-calendar mr-1"></i>
+                <span>{{ formatDateRange(t.startDate, t.endDate) }}</span>
+              </div>
+              <div class="flex items-center">
+                <i class="fa-solid fa-user mr-1"></i>
+                <span>{{ t.assigneeName }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

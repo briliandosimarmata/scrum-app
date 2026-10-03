@@ -1,0 +1,161 @@
+<aside class="w-64 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col h-screen">
+  <!-- Sidebar Header -->
+  <div class="h-16 flex items-center justify-center border-b border-gray-200 flex-shrink-0">
+    <h1 class="text-xl font-bold text-gray-800">{{ currentProject()?.name || 'Project' }}</h1>
+  </div>
+
+  <!-- Scrollable Navigation Area -->
+  <div class="flex-1 overflow-y-auto">
+    <nav class="px-4 py-6 space-y-2">
+      <!-- Dashboard -->
+      <a [routerLink]="['/projects', currentProject()?.code, 'dashboard']" routerLinkActive="bg-blue-600 text-white hover:bg-blue-600 hover:text-white" [routerLinkActiveOptions]="{exact: true}"
+        (click)="setActiveParentMenu('dashboard')"
+        class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg cursor-pointer">
+        <i class="fa-solid fa-table-columns w-6 text-center"></i>
+        <span>Dashboard</span>
+      </a>
+
+      <!-- Masters Menu -->
+      <div>
+        <button (click)="toggleMastersSubmenu()"
+                [ngClass]="activeParentMenu() === 'masters' ? ACTIVE_PARENT_CLASSES : ''"
+                class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg cursor-pointer">
+          <div class="flex items-center">
+            <i class="fa-solid fa-database w-6 text-center"></i>
+            <span>Masters</span>
+          </div>
+          <i class="fa-solid fa-chevron-down text-xs transition-transform" 
+             [class.rotate-180]="mastersSubmenuOpen()"></i>
+        </button>
+        <div class="overflow-hidden transition-all duration-300 ease-out" 
+             [style.max-height]="mastersSubmenuOpen() ? '200px' : '0px'">
+          <div class="ml-4 mt-1 space-y-1">
+            <a [routerLink]="['/projects', currentProject()?.code, 'masters', 'assignee']" 
+               [routerLinkActive]="ACTIVE_CHILD_CLASSES"
+               [routerLinkActiveOptions]="{exact: true}"
+               (click)="setActiveParentMenu('assignee')"
+               class="block px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 rounded-lg">Assignee</a>
+            <a [routerLink]="['/projects', currentProject()?.code, 'masters', 'department']" 
+               [routerLinkActive]="ACTIVE_CHILD_CLASSES"
+               [routerLinkActiveOptions]="{exact: true}"
+               (click)="setActiveParentMenu('department')"
+               class="block px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 rounded-lg">Department</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add New Sprint Button -->
+      <div class="pt-4">
+        <button (click)="onAddSprint()"
+                class="w-full flex items-center justify-center px-4 py-2.5 border border-dashed border-blue-400 rounded-lg text-sm font-semibold text-blue-600 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer">
+          <i class="fa-solid fa-plus mr-2"></i>
+          <span>Add New Sprint</span>
+        </button>
+      </div>
+
+      <!-- Sprint Menu Section -->
+      @if (hasSprints()) {
+        <div class="pt-4 space-y-2 border-t border-gray-200 mt-4">
+          <!-- Sprint Dropdown -->
+          <div class="px-4 relative" (click)="$event.stopPropagation()">
+            <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Active Sprint</label>
+            <button type="button" 
+                    (click)="toggleSprintDropdown()"
+                    class="w-full flex items-center justify-between px-3 py-2 text-left bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 cursor-pointer">
+              <span class="text-sm text-gray-700 truncate">{{ selectedSprintName() }}</span>
+              <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+            </button>
+            
+            <!-- Sprint Dropdown Panel -->
+            @if (isSprintDropdownOpen()) {
+              <div class="absolute z-10 mt-1 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+                <div class="p-2">
+                  <input type="text" 
+                         (input)="onSprintSearch($event)"
+                         class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md" 
+                         placeholder="Search sprints...">
+                </div>
+                <ul class="max-h-40 overflow-y-auto">
+                  @for (sprint of filteredSprints(); track sprint.id) {
+                    <li (click)="selectSprint(sprint.id)"
+                        class="px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 cursor-pointer"
+                        [class.bg-blue-100]="sprint.id === selectedSprintId()"
+                        [class.font-semibold]="sprint.id === selectedSprintId()">
+                      {{ sprint.name }}
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+        
+        <!-- Sprint Menu -->
+        <div>
+          <button (click)="toggleSprintSubmenu()" 
+                  [ngClass]="activeParentMenu() === 'sprints' ? ACTIVE_PARENT_CLASSES : ''"
+                  class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg">
+            <div class="flex items-center">
+              <i class="fa-solid fa-person-running w-6 text-center"></i>
+              <span>Sprint Menu</span>
+            </div>
+            <i class="fa-solid fa-chevron-down text-xs transition-transform" 
+               [class.rotate-180]="sprintSubmenuOpen()"></i>
+          </button>
+          <div class="overflow-hidden transition-all duration-300 ease-out" 
+               [style.max-height]="sprintSubmenuOpen() ? '300px' : '0px'">
+            <div class="ml-4 mt-1 space-y-1">
+              <a [routerLink]="['/projects', currentProject()?.code, 'sprints', 'backlog']" 
+                 [routerLinkActive]="ACTIVE_CHILD_CLASSES"
+                 [routerLinkActiveOptions]="{exact: true}"
+                 (click)="setActiveParentMenu('backlog')"
+                 class="block px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 rounded-lg">Backlog</a>
+              <a [routerLink]="['/projects', currentProject()?.code, 'sprints', 'department-tasks']" 
+                 [routerLinkActive]="ACTIVE_CHILD_CLASSES"
+                 [routerLinkActiveOptions]="{exact: true}"
+                 (click)="setActiveParentMenu('department-tasks')"
+                 class="block px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 rounded-lg">Department Tasks</a>
+              <a [routerLink]="['/projects', currentProject()?.code, 'sprints', 'assignee-tasks']" 
+                 [routerLinkActive]="ACTIVE_CHILD_CLASSES"
+                 [routerLinkActiveOptions]="{exact: true}"
+                 (click)="setActiveParentMenu('assignee-tasks')"
+                 class="block px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 rounded-lg">Assignee Tasks</a>
+              <a [routerLink]="['/projects', currentProject()?.code, 'sprints', 'timeline']" 
+                 [routerLinkActive]="ACTIVE_CHILD_CLASSES"
+                 [routerLinkActiveOptions]="{exact: true}"
+                 (click)="setActiveParentMenu('timeline')"
+                 class="block px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 rounded-lg">Timeline</a>
+              <div class="border-t border-gray-200 my-1"></div>
+              <button (click)="onEditSprint()"
+                      class="w-full text-left block px-4 py-2 text-sm hover:bg-blue-50 hover:text-blue-700 rounded-lg cursor-pointer">Sprint Setting</button>
+            </div>
+          </div>
+        </div>
+        </div>
+      }
+    </nav>
+  </div>
+
+  <!-- Sidebar Footer -->
+  <div class="p-4 border-t border-gray-200 flex-shrink-0">
+    <button (click)="navigateToProjects()" 
+            class="w-full flex items-center px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg cursor-pointer">
+      <i class="fa-solid fa-arrow-left w-6 text-center"></i>
+      <span>Back to Projects</span>
+    </button>
+  </div>
+
+  <!-- Sprint Modal -->
+  @if (isSprintModalOpen()) {
+    <app-sprint-modal
+      [isVisible]="isSprintModalOpen()"
+      [sprintId]="modalSprintId()"
+      (sprintSaved)="onSprintSaved($event)"
+      (modalClosed)="onSprintModalClosed()">
+    </app-sprint-modal>
+  }
+</aside>
+
+<!-- Click outside handler for sprint dropdown -->
+@if (isSprintDropdownOpen()) {
+  <div class="fixed inset-0 z-5" (click)="onSprintDropdownClickOutside()"></div>
+}

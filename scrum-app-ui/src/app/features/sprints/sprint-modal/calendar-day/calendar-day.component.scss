@@ -1,0 +1,19 @@
+.calendar-day.is-holiday { 
+  background-color: #fecaca !important; 
+  color: #b91c1c !important; 
+  text-decoration: line-through; 
+}
+
+.calendar-day.is-today { 
+  border: 1px solid #2563eb; 
+}
+
+.calendar-day:not(.disabled):hover { 
+  background-color: #eff6ff; 
+}
+
+.calendar-day.disabled { 
+  color: #d1d5db; 
+  cursor: not-allowed; 
+  text-decoration: none; 
+}

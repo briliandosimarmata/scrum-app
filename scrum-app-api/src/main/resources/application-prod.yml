@@ -1,0 +1,42 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/scrum_app_prod}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+  flyway:
+    clean-disabled: true # Never clean in production
+
+logging:
+  level:
+    com.scrumku.scrumapp: WARN
+    org.springframework.security: WARN
+    org.flywaydb: WARN
+    root: WARN
+  file:
+    name: logs/scrum-app-api.log
+
+# JWT Configuration for Production
+jwt:
+  secret: ${JWT_SECRET} # Must be set via environment variable
+  expiration: ${JWT_EXPIRATION:3600000} # 1 hour in production
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:86400000} # 24 hours in production
+
+# CORS Configuration for Production
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS}
+  allowed-methods: ${CORS_ALLOWED_METHODS}
+  allowed-headers: "*"
+  allow-credentials: true
+
+# Project Key Configuration for Production
+project:
+  key:
+    master-key: ${PROJECT_KEY_MASTER_KEY} # Must be set via environment variable
+    expiration-days: ${PROJECT_KEY_EXPIRATION_DAYS:30}
+    length: ${PROJECT_KEY_LENGTH:8}

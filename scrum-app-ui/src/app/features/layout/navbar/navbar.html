@@ -1,0 +1,40 @@
+<header class="bg-white shadow-lg border-b border-gray-100">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-16">
+      <!-- Logo/Brand Section -->
+      <div class="flex items-center">
+        <div class="flex-shrink-0 flex items-center">
+          <div class="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
+            <i class="fa-solid fa-project-diagram text-white text-sm"></i>
+          </div>
+          <span class="ml-3 text-xl font-bold text-gray-900">{{ pageTitle() }}</span>
+        </div>
+      </div>
+
+      <!-- User Menu Section -->
+      <div class="flex items-center space-x-4">
+        <!-- Connection Status Indicator -->
+        <div class="flex items-center space-x-2" 
+             [title]="errorMessage() ? 'Last checked: ' + (lastChecked() | date:'short') + ' - ' + errorMessage() : 'Last checked: ' + (lastChecked() | date:'short')">
+          <div class="flex items-center space-x-1">
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium"
+                  [ngClass]="connectionStatusBadgeClass()">
+              <span class="mr-1">{{ connectionStatusIcon() }}</span>
+              {{ connectionStatusText() }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Notifications (disabled - feature not available) -->
+        <button class="p-2 text-gray-300 cursor-not-allowed relative" 
+                title="Notifications - Coming Soon"
+                disabled>
+          <i class="fa-solid fa-bell text-lg"></i>
+        </button>
+
+        <!-- User Menu Widget -->
+        <app-user-menu-widget></app-user-menu-widget>
+      </div>
+    </div>
+  </div>
+</header>

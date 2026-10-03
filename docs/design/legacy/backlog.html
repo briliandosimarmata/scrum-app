@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backlog - Scrum Board</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10pt; }
+        .submenu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .table-cell-padding { padding: 6px 12px; }
+        .custom-dropdown { position: relative; }
+        .custom-dropdown-panel {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 50;
+            min-width: 100%;
+            max-height: 250px;
+            overflow-y: auto;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .custom-dropdown-panel.show { display: block; }
+        .custom-dropdown-option { padding: 8px 12px; cursor: pointer; font-size: 0.875rem; }
+        .custom-dropdown-option:hover { background-color: #f3f4f6; }
+        .status-badge, .priority-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-weight: 500;
+            font-size: 8pt;
+        }
+        tr.is-closed { background-color: #f1f5f9; text-decoration: line-through; }
+        tr.is-closed .custom-dropdown, tr.is-closed .edit-btn { pointer-events: none; opacity: 0.7; }
+    </style>
+</head>
+<body class="bg-blue-50">
+
+    <div class="flex h-screen bg-gray-100">
+        <!-- Sidebar -->
+        <aside class="w-64 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col h-screen">
+            <div class="h-16 flex items-center justify-center border-b border-gray-200 flex-shrink-0">
+                <h1 class="text-xl font-bold text-gray-800">E-commerce Platform</h1>
+            </div>
+            <!-- Scrollable Navigation Area -->
+            <div class="flex-1 overflow-y-auto">
+                <nav id="sidebar-nav" class="px-4 py-6 space-y-2">
+                 <a href="dashboard.html" class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg">
+                    <i class="fa-solid fa-table-columns w-6 text-center"></i>
+                    <span>Dashboard</span>
+                </a>
+                <div>
+                    <button onclick="toggleSubmenu('masters-submenu')" class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-database w-6 text-center"></i>
+                            <span>Masters</span>
+                        </div>
+                        <i id="masters-submenu-arrow" class="fa-solid fa-chevron-down text-xs transition-transform"></i>
+                    </button>
+                    <div id="masters-submenu" class="submenu ml-4 mt-1 space-y-1">
+                        <a href="assignee.html" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Assignee</a>
+                        <a href="department.html" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Department</a>
+                    </div>
+                </div>
+                <div class="pt-4">
+                    <button id="add-sprint-btn" class="w-full flex items-center justify-center px-4 py-2.5 border border-dashed border-blue-400 rounded-lg text-sm font-semibold text-blue-600 hover:bg-blue-100">
+                        <i class="fa-solid fa-plus mr-2"></i>
+                        <span>Add New Sprint</span>
+                    </button>
+                </div>
+                <!-- Sprint Menu Section -->
+                <div class="pt-4 space-y-2 border-t border-gray-200 mt-4">
+                    <div class="px-4 relative">
+                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Active Sprint</label>
+                        <button type="button" class="w-full flex items-center justify-between px-3 py-2 text-left bg-white border border-gray-300 rounded-md shadow-sm">
+                            <span class="text-sm text-gray-700 truncate">Sprint 1 - UI Redesign</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                        </button>
+                    </div>
+                    <div>
+                        <button onclick="toggleSubmenu('sprint-submenu')" class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fa-solid fa-person-running w-6 text-center"></i>
+                                <span>Sprint Menu</span>
+                            </div>
+                            <i id="sprint-submenu-arrow" class="fa-solid fa-chevron-down text-xs transition-transform rotate-180"></i>
+                        </button>
+                        <div id="sprint-submenu" class="submenu ml-4 mt-1 space-y-1" style="max-height: 500px;">
+                            <a href="backlog.html" class="block px-4 py-2 text-sm font-semibold text-blue-700 bg-blue-100 rounded-lg">Backlog</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Department Tasks</a>
+                            <a href="assignee-tasks.html" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Assignee Tasks</a>
+                            <a href="timeline.html" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Timeline</a>
+                            <div class="border-t my-1"></div>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Sprint Setting</a>
+                        </div>
+                    </div>
+                </div>
+                </nav>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex-shrink-0">
+                <a href="project-list.html" class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg">
+                    <i class="fa-solid fa-arrow-left w-6 text-center"></i>
+                    <span>Back to Projects</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <header class="bg-white shadow-sm">
+                <div class="flex justify-between items-center p-4 sm:p-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Backlog</h2>
+                    <div class="flex items-center">
+                        <span class="text-sm text-gray-600 mr-4">John Doe</span>
+                        <a href="login.html" class="text-sm font-medium text-blue-600 hover:text-blue-500">Logout</a>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-4 sm:p-6 lg:p-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
+                        <div id="filter-container" class="flex items-center gap-4 flex-wrap">
+                            <!-- Filters will be inserted here by JavaScript -->
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="add-task-btn" class="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                                <i class="fa-solid fa-plus mr-2"></i>
+                                Add New Task
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="table-cell-padding text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
+                                    <th class="table-cell-padding text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dependency</th>
+                                    <th class="table-cell-padding text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">Description</th>
+                                    <th class="table-cell-padding text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                                    <th class="table-cell-padding text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Story Points</th>
+                                    <th class="table-cell-padding text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Status</th>
+                                    <th class="table-cell-padding text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                                    <th class="table-cell-padding text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assignee</th>
+                                    <th class="table-cell-padding text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="task-table-body" class="bg-white divide-y divide-gray-200">
+                                <!-- Task rows will be dynamically inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div id="pagination-container" class="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+                        <div id="pagination-info" class="text-sm text-gray-700">
+                            <!-- Pagination info will be inserted here -->
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <div id="page-size-dropdown" class="custom-dropdown relative">
+                                <!-- Page size dropdown will be inserted here -->
+                            </div>
+                            <div id="pagination-controls" class="flex items-center gap-1">
+                                <!-- Pagination buttons will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+<script>
+// --- Sidebar ---
+function toggleSubmenu(submenuId) {
+    const submenu = document.getElementById(submenuId);
+    const arrow = document.getElementById(submenuId + '-arrow');
+    if (submenu.style.maxHeight && submenu.style.maxHeight !== '0px') {
+        submenu.style.maxHeight = '0px';
+        arrow.classList.remove('rotate-180');
+    } else {
+        submenu.style.maxHeight = submenu.scrollHeight + 'px';
+        arrow.classList.add('rotate-180');
+    }
+}
+
+// --- Mock Data ---
+const mockData = {
+    departments: [
+        { id: 1, name: 'Frontend' },
+        { id: 2, name: 'Backend' },
+        { id: 3, name: 'QA' },
+    ],
+    assignees: [
+        { id: 1, name: 'Alice', departmentIds: [1] },
+        { id: 2, name: 'Bob', departmentIds: [2] },
+        { id: 3, name: 'Charlie', departmentIds: [1, 2] },
+        { id: 4, name: 'David', departmentIds: [3] },
+        { id: 5, name: 'Eve', departmentIds: [1, 3] },
+    ],
+    tasks: [
+        { id: 1, code: 'MBAP-T-01', dependency: null, description: 'Setup project structure and basic boilerplate.', priority: 'high', storyPoints: 2, status: 'done', departmentId: 1, assigneeId: 1 },
+        { id: 2, code: 'MBAP-T-02', dependency: 1, description: 'Develop the main dashboard component.', priority: 'high', storyPoints: 5, status: 'in_progress', departmentId: 1, assigneeId: 3 },
+        { id: 3, code: 'MBAP-T-03', dependency: null, description: 'Design and implement the auth API endpoints.', priority: 'medium', storyPoints: 4.5, status: 'in_progress', departmentId: 2, assigneeId: 2 },
+        { id: 4, code: 'MBAP-T-04', dependency: 3, description: 'Write integration tests for auth flow.', priority: 'low', storyPoints: 3, status: 'todo', departmentId: 3, assigneeId: 4 },
+        { id: 5, code: 'MBAP-T-05', dependency: 1, description: 'This is a very long description to test truncation.', priority: 'medium', storyPoints: 1.5, status: 'todo', departmentId: 1, assigneeId: null },
+        { id: 6, code: 'MBAP-T-06', dependency: null, description: 'A closed task that should not be editable.', priority: 'low', storyPoints: 1, status: 'closed', departmentId: 3, assigneeId: 4 },
+    ],
+    priorities: [
+        { id: 'high', name: 'High' }, { id: 'medium', name: 'Medium' }, { id: 'low', name: 'Low' },
+    ],
+    statuses: [
+        { id: 'todo', name: 'To Do' }, { id: 'in_progress', name: 'In Progress' }, { id: 'done', name: 'Done' }, { id: 'closed', name: 'Closed' },
+    ]
+};
+
+// --- Color Mappings ---
+const priorityColors = { high: 'red', medium: 'orange', low: 'green' };
+const statusColors = { todo: 'gray', in_progress: 'blue', done: 'green', closed: 'red' };
+const colorClasses = {
+    red: { bg: 'bg-red-100', text: 'text-red-700' },
+    orange: { bg: 'bg-orange-100', text: 'text-orange-700' },
+    green: { bg: 'bg-green-100', text: 'text-green-700' },
+    blue: { bg: 'bg-blue-100', text: 'text-blue-700' },
+    gray: { bg: 'bg-gray-100', text: 'text-gray-700' },
+};
+
+// --- Client-side Data Store ---
+let tasks = JSON.parse(JSON.stringify(mockData.tasks));
+let newTaskIdCounter = tasks.length + 1;
+let filters = {
+    departmentId: null,
+    assigneeId: null,
+    priority: null,
+    status: null,
+    showClosed: true
+};
+
+// --- Pagination State ---
+let pagination = {
+    currentPage: 1,
+    itemsPerPage: 10,
+    totalPages: 0,
+    totalItems: 0
+};
+
+// --- UI Component Builders ---
+function getBadge(type, id) {
+    const source = type === 'status' ? mockData.statuses : mockData.priorities;
+    const item = source.find(p => p.id === id);
+    if (!item) return '';
+    const color = type === 'status' ? statusColors[id] : priorityColors[id];
+    const classes = colorClasses[color];
+    return `<span class="status-badge ${classes.bg} ${classes.text}">${item.name}</span>`;
+}
+
+function buildDropdown(task, field, isSearchable = false) {
+    let options, triggerContent;
+    const taskId = task.id;
+
+    const searchInputHTML = isSearchable
+        ? `<div class="p-2 border-b border-gray-200">
+               <input type="text" class="w-full px-2 py-1 border border-gray-300 rounded-md text-sm" placeholder="Search..." onkeyup="filterTableCellDropdownOptions(event)">
+           </div>`
+        : '';
+
+    switch (field) {
+        case 'priority':
+            options = mockData.priorities.map(p => `<li class="custom-dropdown-option" onclick="selectValue('${taskId}', 'priority', '${p.id}')">${getBadge('priority', p.id)}</li>`).join('');
+            triggerContent = getBadge('priority', task.priority);
+            break;
+        case 'status':
+            options = mockData.statuses.map(s => `<li class="custom-dropdown-option" onclick="selectValue('${taskId}', 'status', '${s.id}')">${getBadge('status', s.id)}</li>`).join('');
+            triggerContent = getBadge('status', task.status);
+            break;
+        case 'department':
+            options = mockData.departments.map(d => `<li class="custom-dropdown-option" onclick="selectValue('${taskId}', 'departmentId', ${d.id})">${d.name}</li>`).join('');
+            const dept = mockData.departments.find(d => d.id === task.departmentId);
+            triggerContent = dept ? dept.name : '<span class="text-gray-400">Select</span>';
+            break;
+        case 'assignee':
+            const assignees = task.departmentId ? mockData.assignees.filter(a => a.departmentIds.includes(task.departmentId)) : [];
+            options = assignees.map(a => `<li class="custom-dropdown-option" onclick="selectValue('${taskId}', 'assigneeId', ${a.id})">${a.name}</li>`).join('');
+            const assignee = mockData.assignees.find(a => a.id === task.assigneeId);
+            triggerContent = assignee ? assignee.name : '<span class="text-gray-400">Select</span>';
+            if (!task.departmentId) triggerContent = '<span class="text-gray-400 text-xs">Set Dept First</span>';
+            break;
+        case 'dependency':
+             const depTasks = tasks.filter(t => t.id !== task.id);
+             options = `<li class="custom-dropdown-option" onclick="selectValue('${taskId}', 'dependency', null)">None</li>` + depTasks.map(t =>
+                `<li class="custom-dropdown-option" onclick="selectValue('${taskId}', 'dependency', ${t.id})">${t.code} - ${(t.description || '').substring(0,20)}...</li>`
+            ).join('');
+            const depTask = tasks.find(t => t.id === task.dependency);
+            triggerContent = depTask ? depTask.code : '<span class="text-gray-400">None</span>';
+            break;
+    }
+
+    return `
+        <div class="custom-dropdown">
+            <div class="dropdown-trigger" onclick="toggleDropdown(event, this)">
+                ${triggerContent}
+            </div>
+            <div class="custom-dropdown-panel">
+                ${searchInputHTML}
+                <ul>${options}</ul>
+            </div>
+        </div>
+    `;
+}
+
+// --- Row Rendering ---
+function renderRow(task) {
+    const row = document.createElement('tr');
+    row.dataset.id = task.id;
+    if (task.status === 'closed') row.classList.add('is-closed');
+
+    const descriptionCell = `
+        <div class="flex items-center justify-between group">
+            <span class="truncate w-60" title="${task.description || ''}">${task.description || ''}</span>
+            <button class="ml-2 text-gray-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 edit-btn" onclick="editCell(this, '${task.id}', 'description')"><i class="fa-solid fa-pencil text-xs"></i></button>
+        </div>`;
+
+    const storyPointsCell = `
+        <div class="flex items-center justify-between group">
+            <span>${task.storyPoints}</span>
+            <button class="ml-2 text-gray-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 edit-btn" onclick="editCell(this, '${task.id}', 'storyPoints')"><i class="fa-solid fa-pencil text-xs"></i></button>
+        </div>`;
+
+    row.innerHTML = `
+        <td class="table-cell-padding whitespace-nowrap font-medium text-gray-900">${task.code}</td>
+        <td class="table-cell-padding">${buildDropdown(task, 'dependency', true)}</td>
+        <td class="table-cell-padding">${descriptionCell}</td>
+        <td class="table-cell-padding">${buildDropdown(task, 'priority')}</td>
+        <td class="table-cell-padding">${storyPointsCell}</td>
+        <td class="table-cell-padding">${buildDropdown(task, 'status')}</td>
+        <td class="table-cell-padding">${buildDropdown(task, 'department', true)}</td>
+        <td class="table-cell-padding">${buildDropdown(task, 'assignee', true)}</td>
+        <td class="table-cell-padding whitespace-nowrap text-right text-sm font-medium space-x-4">
+            <button class="text-gray-600 hover:text-gray-900 close-btn" title="Close Task" onclick="selectValue('${task.id}', 'status', 'closed')"><i class="fa-solid fa-check-circle"></i></button>
+            <button class="text-red-600 hover:text-red-900 delete-btn" title="Delete" onclick="deleteTask('${task.id}')"><i class="fa-solid fa-trash"></i></button>
+        </td>
+    `;
+    return row;
+}
+
+function renderAllTasks() {
+    const tableBody = document.getElementById('task-table-body');
+    tableBody.innerHTML = '';
+
+    const filteredTasks = tasks.filter(task => {
+        const show = filters.showClosed || task.status !== 'closed';
+        const deptMatch = filters.departmentId === null || task.departmentId == filters.departmentId;
+        const assigneeMatch = filters.assigneeId === null || task.assigneeId == filters.assigneeId;
+        const priorityMatch = filters.priority === null || task.priority === filters.priority;
+        const statusMatch = filters.status === null || task.status === filters.status;
+        
+        return show && deptMatch && assigneeMatch && priorityMatch && statusMatch;
+    });
+
+    // Update pagination metadata
+    pagination.totalItems = filteredTasks.length;
+    pagination.totalPages = Math.ceil(pagination.totalItems / pagination.itemsPerPage);
+    
+    // Ensure current page is valid
+    if (pagination.currentPage > pagination.totalPages && pagination.totalPages > 0) {
+        pagination.currentPage = pagination.totalPages;
+    }
+    if (pagination.currentPage < 1) {
+        pagination.currentPage = 1;
+    }
+
+    // Calculate pagination slice
+    const startIndex = (pagination.currentPage - 1) * pagination.itemsPerPage;
+    const endIndex = startIndex + pagination.itemsPerPage;
+    const paginatedTasks = filteredTasks.slice(startIndex, endIndex);
+
+    // Render tasks for current page
+    paginatedTasks.forEach(task => tableBody.appendChild(renderRow(task)));
+    
+    // Update pagination controls
+    updatePaginationControls();
+}
+
+// --- Event Handling & State Updates ---
+function closeAllDropdowns() {
+    document.querySelectorAll('.custom-dropdown-panel.show').forEach(panel => {
+        panel.classList.remove('show');
+        if (panel.dataset.teleported === 'true') {
+            panel._originalParent.appendChild(panel);
+            Object.assign(panel.style, { position: '', top: '', left: '', minWidth: '', zIndex: '' });
+            delete panel.dataset.teleported;
+            delete panel._trigger;
+            delete panel._originalParent;
+        }
+    });
+}
+
+function repositionTeleportedDropdowns() {
+    const panel = document.querySelector('.custom-dropdown-panel.show[data-teleported="true"]');
+    if (panel && panel._trigger) {
+        const rect = panel._trigger.getBoundingClientRect();
+        if (rect.top < 0 || rect.bottom > window.innerHeight || rect.left < 0 || rect.right > window.innerWidth) {
+            closeAllDropdowns();
+        } else {
+            Object.assign(panel.style, {
+                top: `${rect.bottom}px`,
+                left: `${rect.left}px`,
+            });
+        }
+    }
+}
+
+document.addEventListener('click', e => {
+    if (!e.target.closest('.custom-dropdown')) closeAllDropdowns();
+});
+
+function toggleDropdown(event, trigger) {
+    event.stopPropagation();
+    const panel = trigger.nextElementSibling;
+    const isShowing = panel.classList.contains('show');
+    closeAllDropdowns();
+    if (!isShowing) {
+        if (trigger.closest('td')) {
+            const rect = trigger.getBoundingClientRect();
+            panel.dataset.teleported = 'true';
+            panel._trigger = trigger;
+            panel._originalParent = trigger.parentElement;
+            document.body.appendChild(panel);
+            Object.assign(panel.style, {
+                position: 'fixed',
+                top: `${rect.bottom}px`,
+                left: `${rect.left}px`,
+                minWidth: `${trigger.offsetWidth}px`,
+                zIndex: 100
+            });
+        }
+
+        panel.classList.add('show');
+        const searchInput = panel.querySelector('input[type="text"]');
+        if (searchInput) {
+            searchInput.value = '';
+            searchInput.dispatchEvent(new KeyboardEvent('keyup', { 'key': '' }));
+            searchInput.focus();
+        }
+    }
+}
+
+function editCell(iconElement, taskId, field) {
+    const task = tasks.find(t => t.id == taskId);
+    if (!task) return;
+
+    const cell = iconElement.closest('td');
+    const currentValue = task[field];
+    const inputType = field === 'storyPoints' ? 'number' : 'text';
+    const inputWidth = field === 'storyPoints' ? 'w-20' : 'w-full';
+
+    cell.innerHTML = `
+        <div class="flex items-center justify-between">
+            <input type="${inputType}" class="border-gray-300 rounded-md shadow-sm ${inputWidth} py-1 px-2" value="${currentValue || ''}">
+            <button class="ml-2 text-green-600 hover:text-green-800" onclick="saveCell(this, '${taskId}', '${field}')"><i class="fa-solid fa-check"></i></button>
+        </div>
+    `;
+    cell.querySelector('input').focus();
+}
+
+function saveCell(iconElement, taskId, field) {
+    const cell = iconElement.closest('td');
+    const input = cell.querySelector('input');
+    const newValue = input.type === 'number' ? parseFloat(input.value) : input.value;
+    const task = selectValue(taskId, field, newValue, false);
+
+    if (!task) return;
+
+    let newCellContent;
+    if (field === 'description') {
+        newCellContent = `
+        <div class="flex items-center justify-between group">
+            <span class="truncate w-60" title="${task.description || ''}">${task.description || ''}</span>
+            <button class="ml-2 text-gray-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 edit-btn" onclick="editCell(this, '${task.id}', 'description')"><i class="fa-solid fa-pencil text-xs"></i></button>
+        </div>`;
+    } else if (field === 'storyPoints') {
+        newCellContent = `
+        <div class="flex items-center justify-between group">
+            <span>${task.storyPoints}</span>
+            <button class="ml-2 text-gray-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 edit-btn" onclick="editCell(this, '${task.id}', 'storyPoints')"><i class="fa-solid fa-pencil text-xs"></i></button>
+        </div>`;
+    }
+
+    if (newCellContent) {
+        cell.innerHTML = newCellContent;
+    }
+}
+
+function selectValue(taskId, field, value, shouldUpdateRow = true) {
+    const task = tasks.find(t => t.id == taskId);
+    if (task) {
+        if (field === 'departmentId' && task.departmentId !== value) task.assigneeId = null;
+        task[field] = value;
+        if (shouldUpdateRow) {
+            updateRow(taskId);
+        }
+    }
+    return task;
+}
+
+function deleteTask(taskId) {
+    if (confirm('Are you sure you want to delete this task?')) {
+        tasks = tasks.filter(t => t.id != taskId);
+        renderAllTasks();
+    }
+}
+
+function updateRow(taskId) {
+    const task = tasks.find(t => t.id == taskId);
+    const oldRow = document.querySelector(`tr[data-id="${taskId}"]`);
+    if (task && oldRow) {
+        const newRow = renderRow(task);
+        oldRow.parentNode.replaceChild(newRow, oldRow);
+    }
+}
+
+document.getElementById('add-task-btn').addEventListener('click', () => {
+    const newId = `new-${newTaskIdCounter++}`;
+    const projectCode = localStorage.getItem('currentProjectCode') || 'PROJ';
+    const newCode = `${projectCode}-T-${String(tasks.length + 1).padStart(2, '0')}`;
+    const newTask = {
+        id: newId,
+        code: newCode,
+        dependency: null,
+        description: '',
+        priority: 'medium',
+        storyPoints: 1.0,
+        status: 'todo',
+        departmentId: null,
+        assigneeId: null
+    };
+    tasks.unshift(newTask);
+    resetPagination(); // Reset to page 1 to show the new task
+    renderAllTasks();
+});
+
+// --- Pagination Functions ---
+function updatePaginationControls() {
+    updatePaginationInfo();
+    updatePaginationButtons();
+    updatePageSizeDropdown();
+}
+
+function updatePageSizeDropdown() {
+    const container = document.getElementById('page-size-dropdown');
+    if (!container) return;
+    
+    const currentSize = pagination.itemsPerPage;
+    const options = [5, 10, 25, 50];
+    
+    const triggerHTML = `
+        <div class="dropdown-trigger flex items-center justify-between w-16 bg-white border border-gray-300 rounded-md shadow-sm px-3 py-1.5 text-sm cursor-pointer" onclick="togglePaginationDropdown(event, this)">
+            <span class="truncate">${currentSize}</span>
+            <i class="fa-solid fa-chevron-down text-xs text-gray-400 ml-1"></i>
+        </div>
+    `;
+    
+    const optionsHTML = options.map(size => 
+        `<li class="custom-dropdown-option ${size === currentSize ? 'bg-blue-50 text-blue-700' : ''}" onclick="handlePageSizeSelect(${size})">${size}</li>`
+    ).join('');
+    
+    const panelHTML = `
+        <div class="custom-dropdown-panel">
+            <ul>
+                ${optionsHTML}
+            </ul>
+        </div>
+    `;
+    
+    container.innerHTML = triggerHTML + panelHTML;
+}
+
+function togglePaginationDropdown(event, trigger) {
+    event.stopPropagation();
+    const panel = trigger.nextElementSibling;
+    const isShowing = panel.classList.contains('show');
+    
+    // Close all other dropdowns
+    document.querySelectorAll('.custom-dropdown-panel.show').forEach(p => p.classList.remove('show'));
+    
+    if (!isShowing) {
+        panel.classList.add('show');
+    }
+}
+
+function handlePageSizeSelect(size) {
+    pagination.itemsPerPage = size;
+    resetPagination();
+    renderAllTasks();
+    
+    // Close dropdown
+    document.querySelectorAll('.custom-dropdown-panel.show').forEach(p => p.classList.remove('show'));
+}
+
+function updatePaginationInfo() {
+    const infoContainer = document.getElementById('pagination-info');
+    if (!infoContainer) return;
+    
+    const startItem = pagination.totalItems === 0 ? 0 : (pagination.currentPage - 1) * pagination.itemsPerPage + 1;
+    const endItem = Math.min(pagination.currentPage * pagination.itemsPerPage, pagination.totalItems);
+    
+    infoContainer.textContent = `Showing ${startItem} to ${endItem} of ${pagination.totalItems} tasks`;
+}
+
+function updatePaginationButtons() {
+    const controlsContainer = document.getElementById('pagination-controls');
+    if (!controlsContainer) return;
+    
+    controlsContainer.innerHTML = '';
+    
+    if (pagination.totalPages <= 1) return;
+    
+    // First and Previous buttons (icon buttons)
+    const firstBtn = createIconButton('fa-solid fa-angles-left', 1, pagination.currentPage === 1, 'First');
+    const prevBtn = createIconButton('fa-solid fa-chevron-left', pagination.currentPage - 1, pagination.currentPage === 1, 'Previous');
+    
+    controlsContainer.appendChild(firstBtn);
+    controlsContainer.appendChild(prevBtn);
+    
+    // Page numbers with ellipsis
+    const pageNumbers = generatePageNumbers();
+    pageNumbers.forEach(item => {
+        if (item === '...') {
+            const ellipsis = document.createElement('span');
+            ellipsis.className = 'px-3 py-1 text-sm text-gray-500';
+            ellipsis.textContent = '...';
+            controlsContainer.appendChild(ellipsis);
+        } else {
+            const pageBtn = createPaginationButton(item, item, pagination.currentPage === item);
+            controlsContainer.appendChild(pageBtn);
+        }
+    });
+    
+    // Next and Last buttons (icon buttons)
+    const nextBtn = createIconButton('fa-solid fa-chevron-right', pagination.currentPage + 1, pagination.currentPage === pagination.totalPages, 'Next');
+    const lastBtn = createIconButton('fa-solid fa-angles-right', pagination.totalPages, pagination.currentPage === pagination.totalPages, 'Last');
+    
+    controlsContainer.appendChild(nextBtn);
+    controlsContainer.appendChild(lastBtn);
+}
+
+function createIconButton(iconClass, page, isDisabled, tooltip) {
+    const button = document.createElement('button');
+    button.className = `w-8 h-8 flex items-center justify-center text-sm border rounded-md transition-colors ${
+        isDisabled 
+            ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' 
+            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+    }`;
+    button.title = tooltip; // Tooltip on hover
+    
+    const icon = document.createElement('i');
+    icon.className = iconClass;
+    button.appendChild(icon);
+    
+    if (!isDisabled) {
+        button.addEventListener('click', () => goToPage(page));
+    }
+    
+    return button;
+}
+
+function createPaginationButton(text, page, isDisabled) {
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.className = `px-3 py-1 text-sm border rounded-md transition-colors ${
+        isDisabled 
+            ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed' 
+            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400'
+    }`;
+    
+    if (!isDisabled) {
+        button.addEventListener('click', () => goToPage(page));
+    }
+    
+    return button;
+}
+
+function generatePageNumbers() {
+    const current = pagination.currentPage;
+    const total = pagination.totalPages;
+    const pages = [];
+    
+    if (total <= 7) {
+        // Show all pages if 7 or fewer
+        for (let i = 1; i <= total; i++) {
+            pages.push(i);
+        }
+    } else {
+        // Always show first page
+        pages.push(1);
+        
+        if (current <= 4) {
+            // Show first 5 pages, then ellipsis, then last page
+            for (let i = 2; i <= 5; i++) {
+                pages.push(i);
+            }
+            pages.push('...');
+            pages.push(total);
+        } else if (current >= total - 3) {
+            // Show first page, ellipsis, then last 5 pages
+            pages.push('...');
+            for (let i = total - 4; i <= total; i++) {
+                pages.push(i);
+            }
+        } else {
+            // Show first page, ellipsis, current-1, current, current+1, ellipsis, last page
+            pages.push('...');
+            pages.push(current - 1);
+            pages.push(current);
+            pages.push(current + 1);
+            pages.push('...');
+            pages.push(total);
+        }
+    }
+    
+    return pages;
+}
+
+function goToPage(page) {
+    if (page >= 1 && page <= pagination.totalPages && page !== pagination.currentPage) {
+        pagination.currentPage = page;
+        renderAllTasks();
+    }
+}
+
+function resetPagination() {
+    pagination.currentPage = 1;
+}
+
+// --- Filter Logic ---
+function applyFilters() {
+    resetPagination(); // Reset to page 1 when filters change
+    renderAllTasks();
+}
+
+function filterDropdownOptions(event) {
+    const input = event.target;
+    const filter = input.value.toUpperCase();
+    const panel = input.closest('.custom-dropdown-panel');
+    const ul = panel.querySelector('ul');
+    const items = ul.getElementsByTagName('li');
+
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const onclickAttr = item.getAttribute('onclick');
+        
+        if (onclickAttr && onclickAttr.includes("'null'")) {
+            item.style.display = '';
+            continue;
+        }
+        
+        const txtValue = item.textContent || item.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    }
+}
+
+function filterTableCellDropdownOptions(event) {
+    const input = event.target;
+    const filter = input.value.toUpperCase();
+    const panel = input.closest('.custom-dropdown-panel');
+    const ul = panel.querySelector('ul');
+    const items = ul.getElementsByTagName('li');
+
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const onclickAttr = item.getAttribute('onclick');
+
+        if (onclickAttr && (onclickAttr.includes(', null)') || onclickAttr.includes(", 'null'"))) {
+            item.style.display = '';
+            continue;
+        }
+        
+        const txtValue = item.textContent || item.innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    }
+}
+
+function buildFilterDropdown(key, placeholder, items, isSearchable = false) {
+    const selectedItem = items.find(i => i.id == filters[key]);
+    const triggerText = selectedItem ? selectedItem.name : placeholder;
+
+    const searchInputHTML = isSearchable 
+        ? `<div class="p-2 border-b border-gray-200">
+               <input type="text" class="w-full px-2 py-1 border border-gray-300 rounded-md text-sm" placeholder="Search..." onkeyup="filterDropdownOptions(event)">
+           </div>`
+        : '';
+
+    const options = items.map(item => 
+        `<li class="custom-dropdown-option" onclick="handleFilterSelect('${key}', '${item.id}')">${item.name}</li>`
+    ).join('');
+
+    return `
+        <div class="custom-dropdown relative" id="filter-dropdown-${key}">
+            <div class="dropdown-trigger flex items-center justify-between w-40 bg-white border border-gray-300 rounded-md shadow-sm px-3 py-1.5 text-sm cursor-pointer" onclick="toggleDropdown(event, this)">
+                <span class="truncate">${triggerText}</span>
+                <i class="fa-solid fa-chevron-down text-xs text-gray-400 ml-2"></i>
+            </div>
+            <div class="custom-dropdown-panel">
+                ${searchInputHTML}
+                <ul>
+                    <li class="custom-dropdown-option" onclick="handleFilterSelect('${key}', 'null')">
+                        <span class="text-gray-500">${placeholder}</span>
+                    </li>
+                    ${options}
+                </ul>
+            </div>
+        </div>
+    `;
+}
+
+function handleFilterSelect(key, value) {
+    const realValue = value === 'null' ? null : value;
+    
+    const numericId = parseInt(realValue);
+    filters[key] = isNaN(numericId) || String(realValue) !== String(numericId) ? realValue : numericId;
+
+    if (key === 'departmentId') {
+        filters.assigneeId = null;
+        updateAssigneeFilterDropdown();
+    }
+    
+    updateFilterTriggerText(key);
+    closeAllDropdowns();
+    applyFilters();
+}
+
+function updateFilterTriggerText(key) {
+    const dropdown = document.getElementById(`filter-dropdown-${key}`);
+    if (!dropdown) return;
+    const trigger = dropdown.querySelector('.dropdown-trigger span');
+    const placeholder = key === 'departmentId' ? 'All Departments' : key === 'assigneeId' ? 'All Assignees' : key === 'priority' ? 'All Priorities' : 'All Statuses';
+    
+    let items;
+    switch(key) {
+        case 'departmentId': items = mockData.departments; break;
+        case 'assigneeId': items = mockData.assignees; break;
+        case 'priority': items = mockData.priorities; break;
+        case 'status': items = mockData.statuses; break;
+        default: items = [];
+    }
+
+    const selectedItem = items.find(i => i.id == filters[key]);
+    trigger.textContent = selectedItem ? selectedItem.name : placeholder;
+}
+
+function updateAssigneeFilterDropdown() {
+    const dropdown = document.getElementById('filter-dropdown-assigneeId');
+    const panel = dropdown.querySelector('.custom-dropdown-panel ul');
+    
+    const selectedDept = filters.departmentId;
+    const assignees = selectedDept 
+        ? mockData.assignees.filter(a => a.departmentIds.includes(parseInt(selectedDept)))
+        : mockData.assignees;
+
+    const assigneeOptions = assignees.map(a => 
+        `<li class="custom-dropdown-option" onclick="handleFilterSelect('assigneeId', '${a.id}')">${a.name}</li>`
+    ).join('');
+
+    panel.innerHTML = `
+        <li class="custom-dropdown-option" onclick="handleFilterSelect('assigneeId', 'null')">
+            <span class="text-gray-500">All Assignees</span>
+        </li>
+        ${assigneeOptions}
+    `;
+    updateFilterTriggerText('assigneeId');
+}
+
+function initializeFilters() {
+    const container = document.getElementById('filter-container');
+    if (!container) return;
+
+    const deptDropdown = buildFilterDropdown('departmentId', 'All Departments', mockData.departments, true);
+    const assigneeDropdown = buildFilterDropdown('assigneeId', 'All Assignees', mockData.assignees, true);
+    const priorityDropdown = buildFilterDropdown('priority', 'All Priorities', mockData.priorities);
+    const statusDropdown = buildFilterDropdown('status', 'All Statuses', mockData.statuses.filter(s => s.id !== 'closed'));
+
+    const toggleSwitch = `
+        <label for="filter-show-closed" class="flex items-center cursor-pointer">
+            <div class="relative">
+                <input type="checkbox" id="filter-show-closed" class="sr-only peer">
+                <div class="w-10 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </div>
+            <span class="ml-2 text-sm font-medium text-gray-700">Show Closed</span>
+        </label>
+    `;
+
+    container.innerHTML = deptDropdown + assigneeDropdown + priorityDropdown + statusDropdown + toggleSwitch;
+
+    const showClosedCheck = document.getElementById('filter-show-closed');
+    showClosedCheck.checked = filters.showClosed;
+    showClosedCheck.addEventListener('change', (e) => {
+        filters.showClosed = e.target.checked;
+        applyFilters();
+    });
+
+    updateAssigneeFilterDropdown();
+}
+
+// --- Initial Load ---
+window.addEventListener('DOMContentLoaded', () => {
+    initializeFilters();
+    renderAllTasks();
+    toggleSubmenu('sprint-submenu');
+
+    // Close pagination dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#page-size-dropdown')) {
+            document.querySelectorAll('#page-size-dropdown .custom-dropdown-panel.show').forEach(panel => panel.classList.remove('show'));
+        }
+    });
+
+    const tableContainer = document.querySelector('.overflow-x-auto');
+    window.addEventListener('scroll', repositionTeleportedDropdowns, true);
+    if (tableContainer) {
+        tableContainer.addEventListener('scroll', repositionTeleportedDropdowns, true);
+    }
+});
+
+</script>
+
+</body>
+</html>

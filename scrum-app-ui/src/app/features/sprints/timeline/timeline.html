@@ -1,0 +1,172 @@
+<div class="flex-1 overflow-y-auto bg-gray-100">
+  <!-- Loading State -->
+  @if (emptyStateType() === 'loading') {
+    <div class="flex items-center justify-center min-h-96">
+      <div class="text-center">
+        <i class="fa-solid fa-spinner fa-spin text-4xl text-blue-600 mb-4"></i>
+        <h3 class="text-lg font-semibold text-gray-700 mb-2">Loading Timeline</h3>
+        <p class="text-gray-500">Please wait while we load the timeline data...</p>
+      </div>
+    </div>
+  }
+
+  <!-- Enhanced No Sprint Selected State -->
+  @else if (emptyStateType() === 'no-sprint') {
+    <div class="flex items-center justify-center min-h-96">
+      <div class="text-center max-w-md">
+        <div class="relative mb-6">
+          <i class="fa-solid fa-calendar-xmark text-8xl text-gray-300"></i>
+          <div class="absolute inset-0 bg-blue-100 rounded-full blur-xl opacity-50"></div>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-800 mb-3">No Sprint Selected</h3>
+        <p class="text-gray-600 mb-6 leading-relaxed">
+          Please select a sprint from the sidebar to view the timeline. 
+          You can create a new sprint or select an existing one to get started.
+        </p>
+        <div class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-lg">
+          <i class="fa-solid fa-arrow-left mr-2"></i>
+          <span class="font-medium">Use the sidebar to select a sprint</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Enhanced No Tasks in Sprint State -->
+  @else if (emptyStateType() === 'no-tasks') {
+    <div class="flex items-center justify-center min-h-96">
+      <div class="text-center max-w-md">
+        <div class="relative mb-6">
+          <i class="fa-solid fa-tasks text-8xl text-gray-300"></i>
+          <div class="absolute inset-0 bg-blue-100 rounded-full blur-xl opacity-50"></div>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-800 mb-3">No Tasks in This Sprint</h3>
+        <p class="text-gray-600 mb-6 leading-relaxed">
+          This sprint doesn't have any tasks yet. Add tasks to the backlog 
+          and assign them to this sprint to see them in the timeline view.
+        </p>
+        <div class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded-lg">
+          <i class="fa-solid fa-plus mr-2"></i>
+          <span class="font-medium">Go to Backlog to add tasks</span>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Enhanced Timeline View -->
+  @else {
+    <!-- Enhanced Filters -->
+    <div class="mb-6">
+      <div class="flex items-center gap-4">
+        <!-- Department Filter -->
+        <app-dropdown
+          [options]="departmentDropdownOptions()"
+          [selectedValue]="departmentFilter()"
+          [config]="departmentDropdownConfig()"
+          (valueSelected)="onDepartmentFilterChange($event)"
+        >
+          <div class="w-48 bg-white border border-gray-300 rounded-md shadow-sm px-3 py-1.5 text-sm cursor-pointer flex items-center justify-between">
+            <span class="truncate">{{ selectedDepartmentText() }}</span>
+            <i class="fa-solid fa-chevron-down text-xs text-gray-400 ml-2"></i>
+          </div>
+        </app-dropdown>
+      </div>
+    </div>
+
+    <!-- Timeline Grid -->
+    <div class="bg-white rounded-xl shadow-sm flex">
+      <!-- Frozen Pane (Left) -->
+      <div class="w-[200px] border-r border-gray-300 flex-shrink-0 bg-white">
+        <!-- Month Header (Frozen) -->
+        <div class="h-13 p-2 bg-white border-b border-r border-gray-300">
+        </div>
+        
+        <!-- Date Header (Frozen) -->
+        <div class="h-13 text-sm font-semibold p-2 bg-gray-50 border-b border-r border-gray-300 flex items-center">
+          Tasks
+        </div>
+        
+        <!-- Task List (Frozen) -->
+        @for (task of filteredTaskColumn(); track task.id) {
+          <div class="h-13 text-xs font-medium p-2 bg-white border-b border-r border-gray-300 flex items-center" 
+               [title]="task.code + ' - ' + task.description">
+            <span class="truncate w-9/10">{{ task.code }} - {{ task.description }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- Scrollable Pane (Right) -->
+      <div class="overflow-x-auto overflow-y-hidden flex-grow bg-gray-50">
+        <div class="grid grid-auto-rows-[44px] relative" [style.grid-template-columns]="'repeat(' + dateRange().length + ', minmax(80px, 1fr))'">
+          
+          <!-- Month Headers -->
+          @for (month of monthGroups() | keyvalue; track month.key) {
+            <div 
+              class="sticky top-0 z-10 h-13 text-center text-xl font-semibold p-2 border-b border-r border-gray-300 bg-white"
+              [style.grid-column]="month.value.start + ' / span ' + month.value.count"
+              [style.grid-row]="'1'"
+            >
+              <div class="flex items-center justify-center w-full h-full">
+                <i class="fa-solid fa-calendar-days mr-2 text-gray-600"></i>
+                {{ month.key }}
+              </div>
+            </div>
+          }
+
+          <!-- Date Headers -->
+          @for (date of dateRange(); track date.date; let i = $index) {
+            <div 
+              class="sticky top-0 z-10 h-13 text-center text-xs p-1 border-b border-r border-gray-300 flex flex-col justify-center"
+              [class.bg-red-100]="date.isHoliday"
+              [class.bg-gray-50]="!date.isHoliday"
+              [style.grid-column]="i + 1"
+              [style.grid-row]="'2'"
+            >
+              <div>{{ date.date.split('-')[2] }}</div>
+              <div>{{ date.dayName }}</div>
+            </div>
+          }
+
+          <!-- Background Cells -->
+          @for (task of filteredTaskColumn(); track task.id; let taskIndex = $index) {
+            @for (date of dateRange(); track date.date; let dateIndex = $index) {
+              <div 
+                class="h-13 border-b border-r border-gray-300"
+                [class.bg-red-50]="date.isHoliday"
+                [class.bg-white]="!date.isHoliday"
+                [style.grid-row]="taskIndex + 3"
+                [style.grid-column]="dateIndex + 1"
+              ></div>
+            }
+          }
+
+          <!-- Task Bars -->
+          @for (taskBar of filteredTaskBars(); track taskBar.id) {
+            <div 
+              class="flex items-center h-13 z-20"
+              [style.grid-row]="getTaskBarPosition(taskBar).gridRow"
+              [style.grid-column]="getTaskBarPosition(taskBar).gridColumn"
+            >
+              <div class="flex items-center p-1 rounded-xl shadow text-white text-xs h-10 w-full z-20 cursor-pointer hover:scale-105 hover:shadow-lg transition-all duration-200" 
+                  [class]="getStatusColor(taskBar.status)"
+              >
+                <!-- Assignee Avatar -->
+                <div 
+                class="flex-shrink-0 flex items-center justify-center w-7 h-7 border border-white shadow-lg rounded-full ml-1 mr-2 text-white text-xs font-bold"
+                [class]="getAvatarColor(taskBar.assigneeName)"
+                [title]="taskBar.assigneeName"
+                >
+                {{ getInitials(taskBar.assigneeName) }}
+                </div>
+
+                <!-- Task Description -->
+                <div class="truncate min-w-0" [title]="taskBar.description">
+                {{ taskBar.description }}
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,10 @@
+/* Closed task styling */
+.is-closed {
+  background-color: #f1f5f9;
+  text-decoration: line-through;
+}
+
+.is-closed .edit-btn {
+  pointer-events: none;
+  opacity: 0.7;
+}

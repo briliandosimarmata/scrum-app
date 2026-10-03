@@ -1,0 +1,80 @@
+<div>
+  <!-- Assignee Filter -->
+  <div class="mb-4">
+    <div class="flex items-center gap-4">
+      @if (hasAssignees()) {
+        <app-dropdown
+          [options]="assigneeOptions()"
+          [selectedValue]="selectedAssigneeId()"
+          [config]="assigneeDropdownConfig()"
+          (valueSelected)="onAssigneeFilterChange($event)"
+        >
+          <div class="flex items-center justify-between w-64 bg-white border border-gray-300 rounded-md shadow-sm px-3 py-1.5 text-sm cursor-pointer">
+            <span class="truncate">{{ selectedAssigneeText() }}</span>
+            <i class="fa-solid fa-chevron-down text-xs text-gray-400 ml-2"></i>
+          </div>
+        </app-dropdown>
+      } @else {
+        <div class="text-gray-500 text-sm">No assignees available</div>
+      }
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="flex items-center justify-center py-12">
+      <div class="flex items-center space-x-2">
+        <i class="fa-solid fa-spinner fa-spin text-xl text-blue-600"></i>
+        <span class="text-gray-600">Loading assignee data...</span>
+      </div>
+    </div>
+  }
+
+  <!-- No Sprint Selected State -->
+  @if (!isLoading() && !hasSprintId()) {
+    <div class="bg-white rounded-xl shadow-sm p-8 text-center">
+      <div class="flex flex-col items-center">
+        <i class="fa-solid fa-calendar-xmark text-4xl text-gray-300 mb-4"></i>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">No Sprint Selected</h3>
+        <p class="text-gray-600 mb-4">Please select a sprint from the sidebar to view assignee tasks.</p>
+        <p class="text-sm text-gray-500">You can create a new sprint or select an existing one to get started.</p>
+      </div>
+    </div>
+  }
+
+  <!-- No Assignees State -->
+  @if (!isLoading() && hasSprintId() && !hasAssignees()) {
+    <div class="bg-white rounded-xl shadow-sm p-8 text-center">
+      <div class="flex flex-col items-center">
+        <i class="fa-solid fa-user text-4xl text-gray-300 mb-4"></i>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">No Assignees Found</h3>
+        <p class="text-gray-600 mb-4">There are no assignees available for this project.</p>
+        <p class="text-sm text-gray-500">Please create assignees first in the Masters section.</p>
+      </div>
+    </div>
+  }
+
+  <!-- Assignee Summary -->
+  @if (!isLoading() && hasSprintId() && hasAssigneeData()) {
+    <app-assignee-summary [assigneeData]="assigneeData()!"></app-assignee-summary>
+  }
+
+  <!-- Assignee Tasks Table -->
+  @if (!isLoading() && hasSprintId() && hasAssigneeData()) {
+    <app-assignee-tasks-table 
+      [assigneeData]="assigneeData()!" 
+      (tasksReloaded)="onTasksReloaded()">
+    </app-assignee-tasks-table>
+  }
+
+  <!-- No Tasks State -->
+  @if (!isLoading() && hasSprintId() && hasAssigneeData() && !hasTasks()) {
+    <div class="bg-white rounded-xl shadow-sm p-8 text-center">
+      <div class="flex flex-col items-center">
+        <i class="fa-solid fa-tasks text-4xl text-gray-300 mb-4"></i>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">No Tasks Found</h3>
+        <p class="text-gray-600">There are no tasks assigned to this assignee for the selected sprint.</p>
+      </div>
+    </div>
+  }
+</div>

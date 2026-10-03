@@ -1,0 +1,69 @@
+@use "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css");
+
+@layer base {
+    html,
+    body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+    }
+}
+
+/* Draggable Modal Styles */
+.draggable-modal {
+  user-select: none;
+  transition: none !important;
+  cursor: move;
+}
+
+.draggable-modal.dragging {
+  transition: none !important;
+  cursor: grabbing;
+}
+
+/* Exclude form elements from drag cursor */
+.draggable-modal input,
+.draggable-modal textarea,
+.draggable-modal button,
+.draggable-modal select {
+  cursor: default;
+}
+
+.draggable-modal button {
+  cursor: pointer;
+}
+
+/* Enhanced circular button styles */
+.edit-project-btn,
+.delete-project-btn {
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.edit-project-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.delete-project-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .printable, 
+  .printable * {
+    visibility: visible !important;
+  }
+
+  .printable {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+}

@@ -1,0 +1,15 @@
+<div class="flex h-screen bg-gray-100">
+  <!-- Sidebar -->
+  <app-sidebar></app-sidebar>
+  
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto">
+    <!-- Top Header -->
+    <app-navbar></app-navbar>
+    
+    <!-- Content Area -->
+    <div class="p-4 sm:p-6 lg:p-8">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

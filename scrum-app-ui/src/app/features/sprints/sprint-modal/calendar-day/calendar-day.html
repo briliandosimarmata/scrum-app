@@ -1,0 +1,8 @@
+<div 
+  class="calendar-day text-center text-sm p-2 rounded-full cursor-pointer"
+  [class.is-holiday]="isHoliday()"
+  [class.disabled]="isDisabled()"
+  [class.is-today]="isToday()"
+  (click)="onDayClick()">
+  {{ getDayNumber() }}
+</div>

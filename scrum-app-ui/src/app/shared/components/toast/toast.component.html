@@ -1,0 +1,21 @@
+<div [class]="getToastClasses()">
+  <div class="p-4 h-full flex flex-col">
+    <div class="flex items-center gap-3 flex-shrink-0">
+      <div class="flex-shrink-0">
+        <i [class]="getIconClass() + ' ' + getIconColorClass()"></i>
+      </div>
+      <div [class]="'flex-1 font-semibold text-sm whitespace-nowrap overflow-hidden text-ellipsis min-w-0 ' + getTitleColorClass()">
+        {{ toast().title }}
+      </div>
+      <button 
+        type="button" 
+        (click)="onClose()"
+        class="flex-shrink-0 p-1 rounded-full bg-transparent border-none cursor-pointer transition-colors duration-200 hover:bg-gray-100">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+    <div class="mt-2 text-sm text-gray-500 leading-snug line-clamp-2 overflow-hidden text-ellipsis break-words flex-1">
+      {{ toast().description }}
+    </div>
+  </div>
+</div>

@@ -1,0 +1,77 @@
+<div>
+  <!-- Department Filter -->
+  <div class="mb-4">
+    <div class="flex items-center gap-4">
+      @if (hasDepartments()) {
+        <app-dropdown
+          [options]="departmentOptions()"
+          [selectedValue]="selectedDepartmentId()"
+          [config]="departmentDropdownConfig()"
+          (valueSelected)="onDepartmentFilterChange($event)"
+        >
+          <div class="flex items-center justify-between w-64 bg-white border border-gray-300 rounded-md shadow-sm px-3 py-1.5 text-sm cursor-pointer">
+            <span class="truncate">{{ selectedDepartmentText() }}</span>
+            <i class="fa-solid fa-chevron-down text-xs text-gray-400 ml-2"></i>
+          </div>
+        </app-dropdown>
+      } @else {
+        <div class="text-gray-500 text-sm">No departments available</div>
+      }
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="flex items-center justify-center py-12">
+      <div class="flex items-center space-x-2">
+        <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+        <span class="text-gray-600">Loading department data...</span>
+      </div>
+    </div>
+  }
+
+  <!-- No Sprint Selected State -->
+  @if (!isLoading() && !hasSprintId()) {
+    <div class="bg-white rounded-xl shadow-sm p-8 text-center">
+      <div class="flex flex-col items-center">
+        <i class="fa-solid fa-calendar-xmark text-4xl text-gray-300 mb-4"></i>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">No Sprint Selected</h3>
+        <p class="text-gray-600 mb-4">Please select a sprint from the sidebar to view department tasks.</p>
+        <p class="text-sm text-gray-500">You can create a new sprint or select an existing one to get started.</p>
+      </div>
+    </div>
+  }
+
+  <!-- No Departments State -->
+  @if (!isLoading() && hasSprintId() && !hasDepartments()) {
+    <div class="bg-white rounded-xl shadow-sm p-8 text-center">
+      <div class="flex flex-col items-center">
+        <i class="fa-solid fa-building text-4xl text-gray-300 mb-4"></i>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">No Departments Found</h3>
+        <p class="text-gray-600 mb-4">There are no departments available for this project.</p>
+        <p class="text-sm text-gray-500">Please create departments first in the Masters section.</p>
+      </div>
+    </div>
+  }
+
+  <!-- Department Summary -->
+  @if (!isLoading() && hasSprintId() && hasDepartmentData()) {
+    <app-department-summary [departmentData]="departmentData()!"></app-department-summary>
+  }
+
+  <!-- Department Tasks Table -->
+  @if (!isLoading() && hasSprintId() && hasDepartmentData()) {
+    <app-department-tasks-table [departmentData]="departmentData()!"></app-department-tasks-table>
+  }
+
+  <!-- No Tasks State -->
+  @if (!isLoading() && hasSprintId() && hasDepartmentData() && !hasTasks()) {
+    <div class="bg-white rounded-xl shadow-sm p-8 text-center">
+      <div class="flex flex-col items-center">
+        <i class="fa-solid fa-tasks text-4xl text-gray-300 mb-4"></i>
+        <h3 class="text-lg font-semibold text-gray-800 mb-2">No Tasks Found</h3>
+        <p class="text-gray-600">There are no tasks assigned to this department for the selected sprint.</p>
+      </div>
+    </div>
+  }
+</div>

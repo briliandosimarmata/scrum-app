@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignee Tasks - Scrum Board</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 10pt; }
+        .submenu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .custom-dropdown-panel {
+            display: none;
+            position: absolute;
+            z-index: 50;
+            min-width: 100%;
+            max-height: 250px;
+            overflow-y: auto;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .custom-dropdown-panel.show { display: block; }
+        .custom-dropdown-option { padding: 8px 12px; cursor: pointer; font-size: 0.875rem; }
+        .custom-dropdown-option:hover { background-color: #f3f4f6; }
+        
+        /* Priority and Status Badge Styles */
+        .status-badge, .priority-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-weight: 500;
+            font-size: 8pt;
+        }
+        
+        /* Drag and Drop Styles */
+        .draggable-row {
+            cursor: grab;
+            transition: all 0.2s ease;
+        }
+        
+        .draggable-row:hover {
+            background-color: #f8fafc;
+        }
+        
+        .draggable-row:active {
+            cursor: grabbing;
+        }
+        
+        .dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
+            z-index: 1000;
+        }
+        
+        .drop-zone {
+            background-color: #e3f2fd !important;
+            border-top: 2px solid #2196f3;
+        }
+        
+        .drop-zone-bottom {
+            background-color: #e3f2fd !important;
+            border-bottom: 2px solid #2196f3;
+        }
+        
+        .drag-handle {
+            cursor: grab;
+            color: #9ca3af;
+            padding: 4px;
+        }
+        
+        .drag-handle:hover {
+            color: #6b7280;
+        }
+        
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
+<body class="bg-blue-50">
+
+    <div class="flex h-screen bg-gray-100">
+        <!-- Sidebar -->
+        <aside class="w-64 flex-shrink-0 bg-white border-r border-gray-200 flex flex-col h-screen">
+            <div class="h-16 flex items-center justify-center border-b border-gray-200 flex-shrink-0">
+                <h1 class="text-xl font-bold text-gray-800">E-commerce Platform</h1>
+            </div>
+            <!-- Scrollable Navigation Area -->
+            <div class="flex-1 overflow-y-auto">
+                <nav id="sidebar-nav" class="px-4 py-6 space-y-2">
+                 <a href="dashboard.html" class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg">
+                    <i class="fa-solid fa-table-columns w-6 text-center"></i>
+                    <span>Dashboard</span>
+                </a>
+                <div>
+                    <button onclick="toggleSubmenu('masters-submenu')" class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg">
+                        <div class="flex items-center">
+                            <i class="fa-solid fa-database w-6 text-center"></i>
+                            <span>Masters</span>
+                        </div>
+                        <i id="masters-submenu-arrow" class="fa-solid fa-chevron-down text-xs transition-transform"></i>
+                    </button>
+                    <div id="masters-submenu" class="submenu ml-4 mt-1 space-y-1">
+                        <a href="assignee.html" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Assignee</a>
+                        <a href="department.html" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Department</a>
+                    </div>
+                </div>
+                <div class="pt-4">
+                    <button id="add-sprint-btn" class="w-full flex items-center justify-center px-4 py-2.5 border border-dashed border-blue-400 rounded-lg text-sm font-semibold text-blue-600 hover:bg-blue-100">
+                        <i class="fa-solid fa-plus mr-2"></i>
+                        <span>Add New Sprint</span>
+                    </button>
+                </div>
+                <!-- Sprint Menu Section -->
+                <div class="pt-4 space-y-2 border-t border-gray-200 mt-4">
+                    <div class="px-4 relative">
+                        <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Active Sprint</label>
+                        <button type="button" class="w-full flex items-center justify-between px-3 py-2 text-left bg-white border border-gray-300 rounded-md shadow-sm">
+                            <span class="text-sm text-gray-700 truncate">Sprint 1 - UI Redesign</span>
+                            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                        </button>
+                    </div>
+                    <div>
+                        <button onclick="toggleSubmenu('sprint-submenu')" class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fa-solid fa-person-running w-6 text-center"></i>
+                                <span>Sprint Menu</span>
+                            </div>
+                            <i id="sprint-submenu-arrow" class="fa-solid fa-chevron-down text-xs transition-transform rotate-180"></i>
+                        </button>
+                        <div id="sprint-submenu" class="submenu ml-4 mt-1 space-y-1" style="max-height: 500px;">
+                            <a href="backlog.html" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Backlog</a>
+                            <a href="department-tasks.html" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Department Tasks</a>
+                            <a href="assignee-tasks.html" class="block px-4 py-2 text-sm font-semibold text-blue-700 bg-blue-100 rounded-lg">Assignee Tasks</a>
+                            <a href="timeline.html" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Timeline</a>
+                            <div class="border-t my-1"></div>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-500 hover:bg-blue-50 hover:text-blue-700 rounded-lg">Sprint Setting</a>
+                        </div>
+                    </div>
+                </div>
+                </nav>
+            </div>
+            <div class="p-4 border-t border-gray-200 flex-shrink-0">
+                <a href="project-list.html" class="flex items-center px-4 py-2.5 text-sm font-semibold text-gray-600 hover:bg-blue-50 hover:text-blue-700 rounded-lg">
+                    <i class="fa-solid fa-arrow-left w-6 text-center"></i>
+                    <span>Back to Projects</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <header class="bg-white shadow-sm">
+                <div class="flex justify-between items-center p-4 sm:p-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Assignee Tasks</h2>
+                    <div class="flex items-center">
+                        <span class="text-sm text-gray-600 mr-4">John Doe</span>
+                        <a href="login.html" class="text-sm font-medium text-blue-600 hover:text-blue-500">Logout</a>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-4 sm:p-6 lg:p-8">
+                <div class="mb-4">
+                    <div id="assignee-filter-container" class="flex items-center gap-4"></div>
+                </div>
+                <div id="assignee-summary-container" class="mb-6">
+                    <!-- Summary will be rendered here -->
+                </div>
+                <div id="assignee-tasks-container">
+                    <!-- Tasks will be rendered here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+<script>
+// --- Sidebar ---
+function toggleSubmenu(submenuId) {
+    const submenu = document.getElementById(submenuId);
+    const arrow = document.getElementById(submenuId + '-arrow');
+    if (submenu.style.maxHeight && submenu.style.maxHeight !== '0px') {
+        submenu.style.maxHeight = '0px';
+        arrow.classList.remove('rotate-180');
+    } else {
+        submenu.style.maxHeight = submenu.scrollHeight + 'px';
+        arrow.classList.add('rotate-180');
+    }
+}
+
+// --- Enhanced Mock Data ---
+const mockData = {
+    sprintInfo: { 
+        startDate: '2025-10-01', 
+        endDate: '2025-11-07',
+        storyPointPerDay: 2,
+        totalWorkDays: 26 // Assuming 26 working days in the sprint
+    },
+    departments: [
+        { id: 1, name: 'Frontend' }, { id: 2, name: 'Backend' }, { id: 3, name: 'QA' },
+    ],
+    assignees: [
+        { id: 1, name: 'Alice Johnson', departmentId: 1, priorityDepartmentId: 1 }, 
+        { id: 2, name: 'Bob Williams', departmentId: 2, priorityDepartmentId: 2 }, 
+        { id: 3, name: 'Charlie Brown', departmentId: 1, priorityDepartmentId: 1 }, 
+        { id: 4, name: 'David Miller', departmentId: 3, priorityDepartmentId: 3 }, 
+        { id: 5, name: 'Eve Davis', departmentId: 1, priorityDepartmentId: 1 },
+        { id: 6, name: 'Frank Green', departmentId: 2, priorityDepartmentId: 2 },
+    ],
+    tasks: [
+        { id: 1, code: 'MBAP-T-01', description: 'Setup project structure', assigneeId: 1, departmentId: 1, storyPoints: 5, status: 'done', dependency: null, priority: 'high', order: 1 },
+        { id: 2, code: 'MBAP-T-02', description: 'Develop dashboard component', assigneeId: 3, departmentId: 1, storyPoints: 8, status: 'in_progress', dependency: 1, priority: 'high', order: 2 },
+        { id: 3, code: 'MBAP-T-03', description: 'Design auth API', assigneeId: 2, departmentId: 2, storyPoints: 10, status: 'in_progress', dependency: null, priority: 'medium', order: 3 },
+        { id: 4, code: 'MBAP-T-04', description: 'Integration tests for auth', assigneeId: 4, departmentId: 3, storyPoints: 6, status: 'todo', dependency: 3, priority: 'low', order: 4 },
+        { id: 5, code: 'MBAP-T-05', description: 'Cross-department task for UI/Backend', assigneeId: 2, departmentId: 1, storyPoints: 4, status: 'todo', dependency: null, priority: 'medium', order: 5 },
+        { id: 6, code: 'MBAP-T-06', description: 'Deploy to staging', assigneeId: 1, departmentId: 1, storyPoints: 3, status: 'closed', dependency: 2, priority: 'low', order: 6 },
+        { id: 7, code: 'MBAP-T-07', description: 'Backend task for search', assigneeId: 6, departmentId: 2, storyPoints: 12, status: 'todo', dependency: null, priority: 'high', order: 7 },
+        { id: 8, code: 'MBAP-T-08', description: 'QA for dashboard', assigneeId: 4, departmentId: 3, storyPoints: 5, status: 'in_progress', dependency: 2, priority: 'medium', order: 8 },
+        { id: 9, code: 'MBAP-T-09', description: 'Frontend optimization', assigneeId: 5, departmentId: 1, storyPoints: 7, status: 'todo', dependency: 2, priority: 'low', order: 9 },
+        { id: 10, code: 'MBAP-T-10', description: 'Database migration', assigneeId: 6, departmentId: 2, storyPoints: 9, status: 'todo', dependency: 3, priority: 'high', order: 10 },
+        { id: 11, code: 'MBAP-T-11', description: 'User authentication flow', assigneeId: 1, departmentId: 1, storyPoints: 6, status: 'todo', dependency: 3, priority: 'high', order: 11 },
+        { id: 12, code: 'MBAP-T-12', description: 'API documentation', assigneeId: 2, departmentId: 2, storyPoints: 4, status: 'todo', dependency: 7, priority: 'medium', order: 12 },
+        { id: 13, code: 'MBAP-T-13', description: 'Performance monitoring', assigneeId: 3, departmentId: 1, storyPoints: 8, status: 'todo', dependency: 2, priority: 'medium', order: 13 },
+        { id: 14, code: 'MBAP-T-14', description: 'Security audit', assigneeId: 4, departmentId: 3, storyPoints: 10, status: 'todo', dependency: 1, priority: 'high', order: 14 },
+        { id: 15, code: 'MBAP-T-15', description: 'Mobile responsive design', assigneeId: 5, departmentId: 1, storyPoints: 7, status: 'todo', dependency: 2, priority: 'low', order: 15 },
+        { id: 16, code: 'MBAP-T-16', description: 'Data backup system', assigneeId: 6, departmentId: 2, storyPoints: 5, status: 'todo', dependency: 10, priority: 'medium', order: 16 },
+        { id: 17, code: 'MBAP-T-17', description: 'User feedback system', assigneeId: 1, departmentId: 1, storyPoints: 6, status: 'todo', dependency: 2, priority: 'low', order: 17 },
+        { id: 18, code: 'MBAP-T-18', description: 'Automated testing suite', assigneeId: 4, departmentId: 3, storyPoints: 9, status: 'todo', dependency: 4, priority: 'high', order: 18 },
+        { id: 19, code: 'MBAP-T-19', description: 'Code review process', assigneeId: 2, departmentId: 2, storyPoints: 3, status: 'todo', dependency: 7, priority: 'medium', order: 19 },
+        { id: 20, code: 'MBAP-T-20', description: 'Final deployment', assigneeId: 1, departmentId: 1, storyPoints: 4, status: 'todo', dependency: 6, priority: 'high', order: 20 },
+    ],
+    priorities: [
+        { id: 'high', name: 'High', order: 1 },
+        { id: 'medium', name: 'Medium', order: 2 },
+        { id: 'low', name: 'Low', order: 3 }
+    ],
+    statuses: [
+        { id: 'todo', name: 'To Do' },
+        { id: 'in_progress', name: 'In Progress' },
+        { id: 'done', name: 'Done' },
+        { id: 'closed', name: 'Closed' }
+    ]
+};
+
+// Color mappings
+const priorityColors = { high: 'red', medium: 'orange', low: 'green' };
+const statusColors = { todo: 'gray', in_progress: 'blue', done: 'green', closed: 'red' };
+const colorClasses = {
+    red: { bg: 'bg-red-100', text: 'text-red-700' },
+    orange: { bg: 'bg-orange-100', text: 'text-orange-700' },
+    green: { bg: 'bg-green-100', text: 'text-green-700' },
+    blue: { bg: 'bg-blue-100', text: 'text-blue-700' },
+    gray: { bg: 'bg-gray-100', text: 'text-gray-700' }
+};
+
+// Helper function to get badge HTML
+function getBadge(type, id) {
+    const item = type === 'status' ? mockData.statuses.find(s => s.id === id) : mockData.priorities.find(p => p.id === id);
+    if (!item) return `<span class="priority-badge bg-gray-100 text-gray-700">-</span>`;
+    
+    const color = type === 'status' ? statusColors[id] : priorityColors[id];
+    const classes = colorClasses[color];
+    return `<span class="${type}-badge ${classes.bg} ${classes.text}">${item.name}</span>`;
+}
+
+// --- Drag and Drop Functions ---
+let draggedElement = null;
+let draggedTaskId = null;
+
+function handleDragStart(e) {
+    draggedElement = e.target.closest('tr');
+    draggedTaskId = parseInt(draggedElement.dataset.taskId);
+    draggedElement.classList.add('dragging');
+    
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/html', draggedElement.outerHTML);
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    
+    const afterElement = getDragAfterElement(e.target.closest('tbody'), e.clientY);
+    const dragging = document.querySelector('.dragging');
+    
+    if (afterElement == null) {
+        e.target.closest('tbody').appendChild(dragging);
+    } else {
+        e.target.closest('tbody').insertBefore(dragging, afterElement);
+    }
+}
+
+function handleDragEnd(e) {
+    e.target.classList.remove('dragging');
+    draggedElement = null;
+    draggedTaskId = null;
+    
+    // Remove all drop zone highlights
+    document.querySelectorAll('.drop-zone, .drop-zone-bottom').forEach(el => {
+        el.classList.remove('drop-zone', 'drop-zone-bottom');
+    });
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    
+    if (draggedTaskId) {
+        updateTaskOrder();
+    }
+}
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('tr:not(.dragging)')];
+    
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+function updateTaskOrder() {
+    const tbody = document.querySelector('#assignee-tasks-container tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    
+    // Update order numbers based on current row positions
+    rows.forEach((row, index) => {
+        const taskId = parseInt(row.dataset.taskId);
+        const task = mockData.tasks.find(t => t.id === taskId);
+        if (task) {
+            task.order = index + 1;
+        }
+    });
+    
+    // Re-render the table to show updated order numbers
+    renderTasks();
+}
+
+let selectedAssigneeId = mockData.assignees[0].id; // Default to the first assignee
+
+// --- Filter Dropdown Logic ---
+function filterAssigneeDropdownOptions(event) {
+    const input = event.target;
+    const filter = input.value.toUpperCase();
+    const panel = input.closest('.custom-dropdown-panel');
+    const ul = panel.querySelector('ul');
+    const items = ul.getElementsByTagName('li');
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const txtValue = item.textContent || item.innerText;
+        item.style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? '' : 'none';
+    }
+}
+
+function buildAssigneeFilterDropdown() {
+    const items = mockData.assignees;
+    const selectedItem = items.find(i => i.id == selectedAssigneeId);
+    const triggerText = selectedItem ? selectedItem.name : 'Select Assignee';
+    
+    const searchInputHTML = `<div class="p-2 border-b border-gray-200"><input type="text" class="w-full px-2 py-1 border border-gray-300 rounded-md text-sm" placeholder="Search..." onkeyup="filterAssigneeDropdownOptions(event)"></div>`;
+    const options = items.map(item => `<li class="custom-dropdown-option" onclick="handleAssigneeSelect(${item.id})">${item.name}</li>`).join('');
+
+    return (
+        `<div class="relative" id="filter-dropdown-assignee">
+            <div class="dropdown-trigger flex items-center justify-between w-64 bg-white border border-gray-300 rounded-md shadow-sm px-3 py-1.5 text-sm cursor-pointer" onclick="toggleFilterDropdown(event, this)">
+                <span class="truncate">${triggerText}</span>
+                <i class="fa-solid fa-chevron-down text-xs text-gray-400 ml-2"></i>
+            </div>
+            <div class="custom-dropdown-panel">
+                ${searchInputHTML}
+                <ul>
+                    ${options}
+                </ul>
+            </div>
+        </div>`
+    );
+}
+
+function handleAssigneeSelect(assigneeId) {
+    selectedAssigneeId = assigneeId;
+    document.querySelector('#filter-dropdown-assignee .truncate').textContent = mockData.assignees.find(a => a.id == assigneeId).name;
+    closeAllFilterDropdowns();
+    renderPage();
+}
+
+function toggleFilterDropdown(event, trigger) {
+    event.stopPropagation();
+    const panel = trigger.nextElementSibling;
+    const isShowing = panel.classList.contains('show');
+    closeAllFilterDropdowns();
+    if (!isShowing) {
+        panel.classList.add('show');
+        const searchInput = panel.querySelector('input[type="text"]');
+        if (searchInput) {
+            searchInput.value = '';
+            searchInput.dispatchEvent(new KeyboardEvent('keyup', { 'key': '' }));
+            searchInput.focus();
+        }
+    }
+}
+
+function closeAllFilterDropdowns() {
+    document.querySelectorAll('#assignee-filter-container .custom-dropdown-panel.show').forEach(panel => panel.classList.remove('show'));
+}
+
+function initializeAssigneeFilter() {
+    const container = document.getElementById('assignee-filter-container');
+    if (!container) return;
+    const assigneeDropdown = buildAssigneeFilterDropdown();
+    container.innerHTML = assigneeDropdown;
+}
+
+// --- Calculation and Rendering ---
+function renderPage() {
+    renderSummary();
+    renderTasks();
+}
+
+function renderSummary() {
+    const container = document.getElementById('assignee-summary-container');
+    if (!container) return;
+
+    const assignee = mockData.assignees.find(a => a.id === selectedAssigneeId);
+    if (!assignee) return;
+
+    const sprint = mockData.sprintInfo;
+    
+    // 1. Total Capacity in Story Points
+    const totalCapacity = sprint.totalWorkDays * sprint.storyPointPerDay;
+    
+    // 2. Total Capacity Left
+    const tasksForAssignee = mockData.tasks.filter(t => t.assigneeId === selectedAssigneeId && t.status !== 'closed');
+    const totalAssignedStoryPoints = tasksForAssignee.reduce((sum, task) => sum + task.storyPoints, 0);
+    const totalCapacityLeft = totalCapacity - totalAssignedStoryPoints;
+
+    container.innerHTML = `
+        <div class="bg-white rounded-xl shadow-sm p-5">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4">${assignee.name} - Sprint Summary</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-center">
+                <div class="bg-blue-100 p-4 rounded-lg">
+                    <p class="text-sm text-blue-700 font-medium">Total Capacity</p>
+                    <p class="text-2xl font-bold text-blue-900">${totalCapacity} SP</p>
+                </div>
+                <div class="bg-green-100 p-4 rounded-lg">
+                    <p class="text-sm text-green-700 font-medium">Total Capacity Left</p>
+                    <p class="text-2xl font-bold text-green-900">${totalCapacityLeft} SP</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function renderTasks() {
+    const container = document.getElementById('assignee-tasks-container');
+    if (!container) return;
+
+    const tasksForAssignee = mockData.tasks.filter(t => t.assigneeId === selectedAssigneeId && t.status !== 'closed');
+    const sprint = mockData.sprintInfo;
+
+    if (tasksForAssignee.length === 0) {
+        container.innerHTML = '<div class="bg-white rounded-xl shadow-sm p-5 text-center text-gray-500">No tasks assigned to this assignee.</div>';
+        return;
+    }
+
+    // Sort tasks by order (user-defined execution order)
+    const sortedTasks = tasksForAssignee.sort((a, b) => a.order - b.order);
+
+    const taskRows = sortedTasks.map(task => {
+        const dependencyTask = task.dependency ? mockData.tasks.find(t => t.id === task.dependency) : null;
+        const daysSpent = (task.storyPoints / sprint.storyPointPerDay).toFixed(1);
+        const dependencyCode = dependencyTask ? dependencyTask.code : 'None';
+        
+        return `
+            <tr class="border-b draggable-row" data-task-id="${task.id}" draggable="true">
+                <td class="p-3 text-center">
+                    <div class="flex items-center justify-center">
+                        <i class="fa-solid fa-grip-vertical drag-handle mr-2"></i>
+                        <span class="font-medium text-gray-700">${task.order}</span>
+                    </div>
+                </td>
+                <td class="p-3">${task.code}</td>
+                <td class="p-3">${dependencyCode}</td>
+                <td class="p-3">${task.description}</td>
+                <td class="p-3 text-center">${getBadge('priority', task.priority)}</td>
+                <td class="p-3 text-center">${getBadge('status', task.status)}</td>
+                <td class="p-3 text-center">${task.storyPoints}</td>
+                <td class="p-3 text-center">${daysSpent}</td>
+            </tr>
+        `;
+    }).join('');
+
+    container.innerHTML = `
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+            <table class="min-w-full text-sm">
+                <thead class="bg-gray-100">
+                    <tr class="border-b">
+                        <th class="p-3 text-center font-semibold">Order</th>
+                        <th class="p-3 text-left font-semibold">Task Code</th>
+                        <th class="p-3 text-left font-semibold">Task Dependency</th>
+                        <th class="p-3 text-left font-semibold">Task Description</th>
+                        <th class="p-3 text-center font-semibold">Priority</th>
+                        <th class="p-3 text-center font-semibold">Status</th>
+                        <th class="p-3 text-center font-semibold">Story Point</th>
+                        <th class="p-3 text-center font-semibold">Days Spent</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${taskRows}
+                </tbody>
+            </table>
+        </div>
+    `;
+    
+    // Add drag and drop event listeners
+    const tbody = container.querySelector('tbody');
+    if (tbody) {
+        tbody.addEventListener('dragstart', handleDragStart);
+        tbody.addEventListener('dragover', handleDragOver);
+        tbody.addEventListener('dragend', handleDragEnd);
+        tbody.addEventListener('drop', handleDrop);
+    }
+}
+
+// --- Initial Load ---
+window.addEventListener('DOMContentLoaded', () => {
+    initializeAssigneeFilter();
+    renderPage();
+    toggleSubmenu('sprint-submenu');
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#assignee-filter-container .relative')) {
+            closeAllFilterDropdowns();
+        }
+    });
+});
+
+</script>
+
+</body>
+</html>

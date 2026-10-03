@@ -1,0 +1,13 @@
+.day-checkbox { 
+  display: none; 
+}
+
+.day-label { 
+  border: 1px solid #d1d5db; 
+}
+
+.day-checkbox:checked + .day-label { 
+  background-color: #3b82f6; 
+  border-color: #2563eb; 
+  color: white; 
+}
